@@ -33,7 +33,16 @@ target 'TFMPharmaFrontEnd' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
-
+  
+  # Vector Icons
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+    
+  # Pods for react-native-permissions
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone.podspec"
+  pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications.podspec"
+  
   target 'TFMPharmaFrontEndTests' do
     inherit! :search_paths
     # Pods for testing
