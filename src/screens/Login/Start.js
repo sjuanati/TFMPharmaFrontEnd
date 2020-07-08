@@ -42,7 +42,7 @@ const start = props => {
   };
 
   const login = () => {
-    console.log('credentials:', pharmacy.email, pharmacy.password);
+    //console.log('credentials:', pharmacy.email, pharmacy.password);
     if(pharmacy.email && pharmacy.password) {
       setLoading(true);
       axios.post(`${httpUrl}/pharmacy/login`, {
