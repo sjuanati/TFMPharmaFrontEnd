@@ -186,16 +186,15 @@ const getOrders = (props) => {
 
     const getOrders = async () => {
         return new Promise((resolve, reject) => {
+
             axios.get(`${httpUrl}/order/get/pharmacy`, {
                 params: {
                     pharmacy_id: pharmacy.pharmacy_id,
                 },
                 headers: { authorization: pharmacy.token }
             }).then(async res => {
-                console.log('ok')
                 if (res.status === 200 || res.status === 304) {
                     let ordrs = res.data;
-
                     let initialOrder = [{ order_id: 0, header: true }];
                     setOriginalOrders(() => [...initialOrder, ...ordrs]);
                     await findOrder(searchText, [...initialOrder, ...ordrs], filters);
@@ -281,19 +280,19 @@ const getOrders = (props) => {
 
     const StatusOrder = ({ status }) => {
         if (status === 0) {
-            return (<Text style={{ color: 'grey', fontSize: 12 }}>DRAFT</Text>)
+            return (<Text style={styles.statusGrey}>DRAFT</Text>)
         } else if (status === 1) {
-            return (<Text style={{ color: '#f0ad4e', fontSize: 10 }}>REQUESTED</Text>)
+            return (<Text style={styles.statusGrey}>REQUESTED</Text>)
         } else if (status === 2) {
-            return (<Text style={{ color: 'grey', fontSize: 10 }}>CONFIRMED</Text>)
+            return (<Text style={styles.statusYellow}>CONFIRMED</Text>)
         } else if (status === 3) {
-            return (<Text style={{ color: '#f0ad4e', fontSize: 10 }}>PICK UP READY</Text>)
+            return (<Text style={styles.statusGrey}>PICK UP READY</Text>)
         } else if (status === 4) {
-            return (<Text style={{ color: 'grey', fontSize: 10 }}>IN TRANSIT</Text>)
+            return (<Text style={styles.statusYellow}>IN TRANSIT</Text>)
         } else if (status === 5) {
-            return (<Text style={{ color: '#5cb85c', fontSize: 12 }}>DELIVERED</Text>)
+            return (<Text style={styles.statusGreen}>DELIVERED</Text>)
         } else if (status === 6) {
-            return (<Text style={{ color: '#d9534f', fontSize: 12 }}>CANCELLED</Text>)
+            return (<Text style={styles.statusRed}>CANCELLED</Text>)
         } else {
             return (<Text />)
         }
@@ -609,7 +608,23 @@ const styles = StyleSheet.create({
         marginHorizontal: 7,
         marginTop: 15,
         opacity: 0.3
-    }
+    },
+    statusGrey: {
+        color: 'grey', 
+        fontSize: 13,
+    },
+    statusYellow: {
+        color: '#f0ad4e', 
+        fontSize: 13,
+    },
+    statusGreen: {
+        color: '#5cb85c', 
+        fontSize: 13,
+    },
+    statusRed: {
+        color: '#d9534f', 
+        fontSize: 13,
+    },
 });
 
 export default getOrders;

@@ -68,213 +68,43 @@ const getOrderDetail = (props) => {
         });
     };
 
-    const canceledOrder = async () => {
-        let comments = '';
+    const updateOrderStatus = async (status) => {
         Alert.alert(
-            "Estas seguro que quieres cancelar el pedido?",
+            "Please confirm the Order update",
             null,
-            [
-                {
-                    text: "Cancel",
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel"
-                },
-                {
-                    text: "OK", onPress: () => {
-                        axios.post(`${httpUrl}/order/cancelOrder`, {
-                            order_id: order[0].order_id,
-                            pharmacy_id: order[0].pharmacy_id,
-                            user_id: order[0].user_id,
-                            comments: comments
-                        }, {
-                            headers: { authorization: token }
-                        }).then(async res => {
-                            if (res.status === 200 && res.data.order) {
-                                let ordr = res.data.order;
-                                setOrder(ordr);
-                            } else {
-                                { showToast("Ha ocurrido un error") }
-                            }
-                        }).catch(async err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                { showToast("Por favor, vuelve a entrar") }
-                                await AsyncStorage.clear();
-                                props.navigation.navigate('StartScreen');
-                            } else if (err.response && err.response.status === 400) {
-                                { showToast("Ha ocurrido un error") }
-                            } else {
-                                { showToast("Ups... parece que no hay conexión") }
-                            }
-                        });
-                    }
+            [{
+                text: "Cancel",
+                style: "cancel"
+            },
+            {
+                text: "OK", onPress: () => {
+                    axios.post(`${httpUrl}/order/changeOrderStatus`, {
+                        status: status,
+                        order_id: order[0].order_id,
+                        pharmacy_id: order[0].pharmacy_id,
+                        user_id: order[0].user_id,
+                    }, {
+                        headers: { authorization: token }
+                    }).then(async res => {
+                        if (res.status === 200 && res.data.order) {
+                            let ordr = res.data.order;
+                            setOrder(ordr);
+                        } else {
+                            showToast("Error during Order status change");
+                        }
+                    }).catch(async err => {
+                        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                            { showToast("Please sign in again") }
+                            await AsyncStorage.clear();
+                            props.navigation.navigate('StartScreen');
+                        } else if (err.response && err.response.status === 400) {
+                            showToast("Error during Order status change");
+                        } else {
+                            showToast("No connection available");
+                        }
+                    });
                 }
-            ],
-            { cancelable: false }
-        );
-    };
-
-    const confirmOrder = async () => {
-        //const informPriceOrder = async () => {
-        Alert.alert(
-            "¿Estás seguro que quieres confirmar el pedido?", '',
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "OK", onPress: () => {
-                        axios.post(`${httpUrl}/order/confirmOrder`, {
-                            //axios.post(`${httpUrl}/order/informPriceOrder`, {
-                            order_id: order[0].order_id,
-                            pharmacy_id: order[0].pharmacy_id,
-                            //totalPrice: price.replace(/,/g, '.')
-                        }, {
-                            headers: { authorization: token }
-                        }).then(async res => {
-                            if (res.status === 200 && res.data.order) {
-                                let ordr = res.data.order;
-                                setOrder(ordr);
-                            } else {
-                                { showToast("Ha ocurrido un error") }
-                            }
-                        }).catch(async err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                { showToast("Por favor, vuelve a entrar") }
-                                await AsyncStorage.clear();
-                                props.navigation.navigate('StartScreen');
-                            } else if (err.response && err.response.status === 400) {
-                                { showToast("Ha ocurrido un error") }
-                            } else {
-                                { showToast("Ups... parece que no hay conexión") }
-                            }
-                        });
-                    }
-                }
-            ],
-            { cancelable: false }
-        );
-    };
-
-    const deliveredOrder = async () => {
-        Alert.alert(
-            "Estas seguro que quieres entregar el pedido?",
-            null,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "OK", onPress: () => {
-                        axios.post(`${httpUrl}/order/deliverOrder`, {
-                            order_id: order[0].order_id,
-                            pharmacy_id: order[0].pharmacy_id,
-                        }, {
-                            headers: { authorization: token }
-                        }).then(async res => {
-                            if (res.status === 200 && res.data.order) {
-                                let ordr = res.data.order;
-                                setOrder(ordr);
-                            } else {
-                                { showToast("Ha ocurrido un error") }
-                            }
-                        }).catch(async err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                { showToast("Por favor, vuelve a entrar") }
-                                await AsyncStorage.clear();
-                                props.navigation.navigate('StartScreen');
-                            } else if (err.response && err.response.status === 400) {
-                                { showToast("Ha ocurrido un error") }
-                            } else {
-                                { showToast("Ups... parece que no hay conexión") }
-                            }
-                        });
-                    }
-                }
-            ],
-            { cancelable: false }
-        );
-    };
-
-    const readyOrder = async () => {
-        Alert.alert(
-            "Estas seguro que quieres poner el pedido como Listo para Recoger?",
-            null,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "OK", onPress: () => {
-                        axios.post(`${httpUrl}/order/readyOrder`, {
-                            order_id: order[0].order_id,
-                            pharmacy_id: order[0].pharmacy_id,
-                        }, {
-                            headers: { authorization: token }
-                        }).then(async res => {
-                            if (res.status === 200 && res.data.order) {
-                                let ordr = res.data.order;
-                                setOrder(ordr);
-                            } else {
-                                { showToast("Ha ocurrido un error") }
-                            }
-                        }).catch(async err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                { showToast("Por favor, vuelve a entrar") }
-                                await AsyncStorage.clear();
-                                props.navigation.navigate('StartScreen');
-                            } else if (err.response && err.response.status === 400) {
-                                { showToast("Ha ocurrido un error") }
-                            } else {
-                                { showToast("Ups... parece que no hay conexión") }
-                            }
-                        });
-                    }
-                }
-            ],
-            { cancelable: false }
-        );
-    };
-
-    const onTheWayOrder = async () => {
-        Alert.alert(
-            "Estas seguro que quieres poner el pedido como En Camino?",
-            null,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "OK", onPress: () => {
-                        axios.post(`${httpUrl}/order/onTheWayOrder`, {
-                            order_id: order[0].order_id,
-                            pharmacy_id: order[0].pharmacy_id,
-                        }, {
-                            headers: { authorization: token }
-                        }).then(async res => {
-                            if (res.status === 200 && res.data.order) {
-                                let ordr = res.data.order;
-                                setOrder(ordr);
-                            } else {
-                                { showToast("Ha ocurrido un error") }
-                            }
-                        }).catch(async err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                { showToast("Por favor, vuelve a entrar") }
-                                await AsyncStorage.clear();
-                                props.navigation.navigate('StartScreen');
-                            } else if (err.response && err.response.status === 400) {
-                                { showToast("Ha ocurrido un error") }
-                            } else {
-                                { showToast("Ups... parece que no hay conexión") }
-                            }
-                        });
-                    }
-                }
-            ],
+            }],
             { cancelable: false }
         );
     };
@@ -307,121 +137,96 @@ const getOrderDetail = (props) => {
         }
     };
 
-    //   const handlePrice = (value) => {
-    //     setPrice(value)
-    //   };
-
-    const RenderButtonsActions = () => {
+    const RenderActionButtons = () => {
         if (order[0].status === 1) {
             return (
                 <View style={{ flex: 1 }}>
-                    <Text style={{ marginLeft: 5 }}>Cambiar estado:</Text>
+                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
                                 style={styles.buttonCanceled}
-                                onPress={canceledOrder}>
+                                onPress={() => updateOrderStatus(6)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Cancelado
-                  </Text>
+                                    Cancel Order
+                                </Text>
                             </Button>
                         </Col>
                         <Col style={styles.colButton}>
-                            <Button block bordered rounded success
+                            <Button block bordered rounded warning
                                 style={styles.buttonDelivered}
-                                //disabled={!price}
-                                //onPress={informPriceOrder}>
-                                onPress={confirmOrder}>
+                                onPress={() => updateOrderStatus(2)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Confirmar Pedido
-                  </Text>
+                                    Confirm Order
+                                </Text>
                             </Button>
                         </Col>
                     </Grid>
                 </View>)
-        } else if (order[0].status === 3) {
+        } else if (order[0].status === 2) {
             return (
                 <View>
-                    <Text style={{ marginLeft: 5 }}>Cambiar estado:</Text>
+                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
                                 style={styles.buttonCanceled}
-                                onPress={canceledOrder}>
+                                onPress={() => updateOrderStatus(6)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Cancelado
-                  </Text>
+                                    Cancel Order
+                                </Text>
                             </Button>
                         </Col>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded warning
                                 style={styles.buttonReady}
-                                onPress={readyOrder}>
+                                onPress={() => updateOrderStatus(4)}>
                                 <Text numberOfLines={2}
                                     style={styles.smallFont}>
-                                    Listo {'\n'} Recogida
-                  </Text>
+                                    Pick Up Ready
+                                </Text>
                             </Button>
                         </Col>
                         <Col style={styles.colButton}>
-                            <Button block bordered rounded success
+                            <Button block bordered rounded warning
                                 style={styles.buttonDeliveredAlone}
-                                onPress={deliveredOrder}>
+                                onPress={() => updateOrderStatus(3)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Entregado
-                  </Text>
+                                    Ship Order
+                                </Text>
                             </Button>
                         </Col>
                     </Grid>
                 </View>)
-        } else if (order[0].status === 4) {
+        } else if (order[0].status === 3 || order[0].status === 4) {
             return (
                 <View>
-                    <Text style={{ marginLeft: 5 }}>Cambiar estado:</Text>
+                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
                                 style={styles.buttonCanceled}
-                                onPress={canceledOrder}>
+                                onPress={() => updateOrderStatus(6)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Cancelado
-                  </Text>
+                                    Cancel Order
+                                </Text>
                             </Button>
                         </Col>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded success
                                 style={styles.buttonDelivered}
-                                onPress={deliveredOrder}>
+                                onPress={() => updateOrderStatus(5)}>
                                 <Text numberOfLines={1}
                                     style={styles.smallFont}>
-                                    Entregado
-                  </Text>
+                                    Deliver Order
+                                </Text>
                             </Button>
                         </Col>
-                    </Grid>
-                </View>)
-        } else if (order[0].status === 2 || order[0].status === 5) {
-            return (
-                <View>
-                    <Text style={{ marginLeft: 5 }}>Cambiar estado:</Text>
-                    <Grid>
-                        <Col size={1} />
-                        <Col size={2} style={styles.colButton}>
-                            <Button block bordered rounded danger
-                                style={styles.buttonCanceled}
-                                onPress={canceledOrder}>
-                                <Text numberOfLines={1}
-                                    style={styles.smallFont}>
-                                    Cancelado
-                  </Text>
-                            </Button>
-                        </Col>
-                        <Col size={1} />
                     </Grid>
                 </View>)
         } else {
@@ -434,13 +239,14 @@ const getOrderDetail = (props) => {
         return (
             <View>
                 <ListItem style={{ marginLeft: 0 }}
-                    onPress={() => (item.photo && item.photo !== '') ?
-                        openImage(item) : null}
-                    id={item.order_item}>
+                    // onPress={() => (item.photo && item.photo !== '') ?
+                    //     openImage(item) : null}
+                    id={item.order_item}
+                    >
                     <Body style={{ flex: 0.8 }}>
                         <Text note>
                             Item {index + 1}:
-          </Text>
+                        </Text>
                         <Text>
                             {item.product_desc}
                         </Text>
@@ -489,7 +295,7 @@ const getOrderDetail = (props) => {
                     }
                     {StatusOrder(order[0].status)}
                 </View>
-                {RenderButtonsActions()}
+                {RenderActionButtons()}
             </Content>
             <RenderList />
         </Container>
@@ -575,19 +381,19 @@ const styles = StyleSheet.create({
         marginTop: '2%'
     },
     statusGrey: {
-        color: 'grey', 
+        color: 'grey',
         fontSize: 13,
     },
     statusYellow: {
-        color: '#f0ad4e', 
+        color: '#f0ad4e',
         fontSize: 13,
     },
     statusGreen: {
-        color: '#5cb85c', 
+        color: '#5cb85c',
         fontSize: 13,
     },
     statusRed: {
-        color: '#d9534f', 
+        color: '#d9534f',
         fontSize: 13,
     },
 });
