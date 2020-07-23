@@ -16,20 +16,20 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
+import QRCode from 'react-native-qrcode-svg';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { httpUrl } from '../../../urlServer';
 import Cons from '../../shared/Constants'
-//import showToast from '../src/shared/Toast'; // Toast not working with modals
 import globalStyles from '../../UI/Style';
 import CustomHeader from '../../navigation/CustomHeader';
 import ActivityIndicator from '../../UI/ActivityIndicator';
 import { updateData } from '../../store/actions/pharmacy';
 import logger from '../../shared/logRecorder';
 
-import imageProfile from '../../assets/images/profile/rod-of-asclepius-100.png';
+//import imageProfile from '../../assets/images/profile/rod-of-asclepius-100.png';
 
 const profile = (props) => {
 
@@ -290,15 +290,22 @@ const profile = (props) => {
             </TouchableOpacity>
 
             <View style={styles.containerHeader}>
-                <View style={styles.profileImage}>
-                    <ImageBackground
-                        source={imageProfile}
-                        style={styles.image}
-                    />
-                </View>
                 <Text style={[styles.text, styles.textHeader]}> Farmacia {pharmacy.pharmacy_desc} </Text>
                 <Text style={styles.text}>{pharmacy.pharmacy_code}</Text>
+                <Text></Text>
+                <QRCode
+                    //value={user.eth_address}
+                    value="jandddeeerrlskdjflkdsjflkdsj"
+                    color={"black"}
+                    backgroundColor={"white"}
+                    size={125}
+                    logoMargin={2}
+                    logoSize={30}
+                    logoBorderRadius={10}
+                    logoBackgroundColor={"transparent"}
+                />
             </View>
+
             <View style={[styles.containerItems, { marginLeft: 6 }]}>
                 <Ionicons name="ios-phone-portrait" size={30} style={styles.icon} />
                 <Text style={styles.text}>{pharmacy.phone_number}</Text>

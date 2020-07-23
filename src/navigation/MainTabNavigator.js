@@ -11,12 +11,12 @@ import Profile from '../screens/Profile/Profile';
 //import CustomHeader from '../../screenComponents/CustomHeader';
 import FullScreenImage from '../screens/Order/getOrderImage';
 
-const homeYellow = require('../assets/images/bottomBar/yellow/home.png');
-const homeGrey = require('../assets/images/bottomBar/grey/home.png');
-const historialYellow = require('../assets/images/bottomBar/yellow/historial.png');
-const historialGrey = require('../assets/images/bottomBar/grey/historial.png');
-const profileYellow = require('../assets/images/bottomBar/yellow/profile.png');
-const profileGrey = require('../assets/images/bottomBar/grey/profile.png');
+const homeOrange = require('../assets/images/bottomBar/yellow/home-orange.png');
+const homeGrey = require('../assets/images/bottomBar/grey/home-grey.png');
+const ordersOrange = require('../assets/images/bottomBar/yellow/list-orange.png');
+const ordersGrey = require('../assets/images/bottomBar/grey/list-grey.png');
+const profileOrange = require('../assets/images/bottomBar/yellow/user-orange.png');
+const profileGrey = require('../assets/images/bottomBar/grey/user-grey.png');
 
 
 const HomeStack = createStackNavigator({
@@ -34,7 +34,7 @@ HomeStack.navigationOptions = {
         return focused ?
             <Image
                 style={styles.iconHome}
-                source={homeYellow} /> :
+                source={homeOrange} /> :
             <Image
                 style={styles.iconHome}
                 source={homeGrey} />
@@ -69,10 +69,10 @@ OrdersStack.navigationOptions = {
         return focused ?
             <Image
                 style={styles.iconHome}
-                source={historialYellow} /> :
+                source={ordersOrange} /> :
             <Image
                 style={styles.iconHome}
-                source={historialGrey} />
+                source={ordersGrey} />
     }
 };
 
@@ -92,7 +92,7 @@ ProfileStack.navigationOptions = {
         return focused ?
             <Image
                 style={styles.iconHome}
-                source={profileYellow} /> :
+                source={profileOrange} /> :
             <Image
                 style={styles.iconHome}
                 source={profileGrey} />
@@ -113,6 +113,7 @@ const MainTabNavigator = createBottomTabNavigator({
             activeBackgroundColor: '#f0f0f0',
             inactiveTintColor: 'black',
             inactiveBackgroundColor: '#F0F0F0',
+            showLabel: false,
             style: {
                 height: 60,
                 backgroundColor: '#F0F0F0',
@@ -124,8 +125,8 @@ const MainTabNavigator = createBottomTabNavigator({
 
 const styles = StyleSheet.create({
     iconHome: {
-        width: 25,
-        height: 25
+        width: 30,
+        height: 30
     }
 });
 

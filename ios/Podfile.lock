@@ -188,7 +188,7 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
   - React-jsinspector (0.61.5)
-  - react-native-image-picker (2.3.1):
+  - react-native-image-picker (2.3.3):
     - React
   - react-native-safe-area-context (0.7.3):
     - React
@@ -233,20 +233,24 @@ PODS:
     - React
   - RNCMaskedView (0.1.10):
     - React
-  - RNGestureHandler (1.6.1):
+  - RNGestureHandler (1.7.0):
     - React
   - RNPermissions (2.1.5):
     - React
-  - RNReanimated (1.9.0):
+  - RNReanimated (1.10.1):
     - React
-  - RNScreens (2.8.0):
+  - RNScreens (2.9.0):
     - React
   - RNSound (0.11.0):
     - React
     - RNSound/Core (= 0.11.0)
   - RNSound/Core (0.11.0):
     - React
-  - RNVectorIcons (6.6.0):
+  - RNSVG (12.1.0):
+    - React
+  - RNVectorIcons (6.7.0):
+    - React
+  - toolbar-android (0.1.0-rc.2):
     - React
   - Yoga (1.14.0)
 
@@ -291,7 +295,9 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSound (from `../node_modules/react-native-sound`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - "toolbar-android (from `../node_modules/@react-native-community/toolbar-android`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -373,8 +379,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSound:
     :path: "../node_modules/react-native-sound"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  toolbar-android:
+    :path: "../node_modules/@react-native-community/toolbar-android"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -397,7 +407,7 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
-  react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
+  react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
@@ -412,14 +422,16 @@ SPEC CHECKSUMS:
   RNAudio: cae2991f2dccb75163f260b60da8051717b959fa
   RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
+  RNGestureHandler: b6b359bb800ae399a9c8b27032bdbf7c18f08a08
   RNPermissions: 1888705aebcc81714efa5dbff94351e4388ae012
-  RNReanimated: b5ccb50650ba06f6e749c7c329a1bc3ae0c88b43
-  RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
+  RNReanimated: c2bb7438b57a3d987bb2e4e6e4bca94787e30b02
+  RNScreens: c526239bbe0e957b988dacc8d75ac94ec9cb19da
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
-  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
+  RNSVG: ce9d996113475209013317e48b05c21ee988d42e
+  RNVectorIcons: 368d6d8b8301224e5ffb6254191f4f8876c2be0d
+  toolbar-android: 404f4450b203597e7b417f714ff417bed562a1be
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
 PODFILE CHECKSUM: f5d054dc5e34e07b6e1b5e150abbfdd005998303
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3
