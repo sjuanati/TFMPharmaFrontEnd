@@ -1,6 +1,5 @@
 import React from 'react';
-import { Platform, Image, StyleSheet } from 'react-native';
-//import { createDrawerNavigator } from 'react-navigation-drawer';
+import { Image, StyleSheet } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
@@ -8,8 +7,9 @@ import Home from '../screens/Home/Home';
 import Orders from '../screens/Order/GetOrders';
 import OrderDetail from '../screens/Order/GetOrderDetail';
 import Profile from '../screens/Profile/Profile';
-//import CustomHeader from '../../screenComponents/CustomHeader';
 import FullScreenImage from '../screens/Order/getOrderImage';
+import CustomHeader from '../navigation/CustomHeader';
+import CustomHeaderBack from '../navigation/CustomHeaderBack';
 
 const homeOrange = require('../assets/images/bottomBar/yellow/home-orange.png');
 const homeGrey = require('../assets/images/bottomBar/grey/home-grey.png');
@@ -22,9 +22,7 @@ const profileGrey = require('../assets/images/bottomBar/grey/user-grey.png');
 const HomeStack = createStackNavigator({
     Home: {
         screen: Home,
-        navigationOptions: {
-            headerShown: false,
-        }
+        navigationOptions: { header: props => <CustomHeader {...props} /> }
     },
 });
 
@@ -44,23 +42,20 @@ HomeStack.navigationOptions = {
 const OrdersStack = createStackNavigator({
     Orders: {
         screen: Orders,
-        navigationOptions: {
-            headerShown: false,
-        }
+        navigationOptions: { header: props => <CustomHeader {...props} /> }
     },
     OrderDetail: {
         screen: OrderDetail,
-        navigationOptions: {
-            headerShown: false,
-        }
+        navigationOptions: { headerShown: true }
     },
     FullScreenImage: {
         screen: FullScreenImage,
-        navigationOptions: {
-            headerShown: false
-        }
+        navigationOptions: { headerShown: true }
     }
 },
+    {
+        defaultNavigationOptions: { header: props => <CustomHeaderBack {...props} /> }
+    }
 );
 
 OrdersStack.navigationOptions = {
@@ -79,16 +74,14 @@ OrdersStack.navigationOptions = {
 const ProfileStack = createStackNavigator({
     Profile: {
         screen: Profile,
-        navigationOptions: {
-            headerShown: false
-        }
+        navigationOptions: { headerShown: false }
     }
 },
 );
 
 ProfileStack.navigationOptions = {
     tabBarLabel: 'Profile',
-    tabBarIcon: ({ focused, color, size }) => {
+    tabBarIcon: ({ focused }) => {
         return focused ?
             <Image
                 style={styles.iconHome}
@@ -99,15 +92,13 @@ ProfileStack.navigationOptions = {
     }
 };
 
-const MainTabNavigator = createBottomTabNavigator({
-    HomeStack,
-    OrdersStack,
-    ProfileStack,
-},
+const MainTabNavigator = createBottomTabNavigator(
     {
-        defaultNavigationOptions: {
-            // header: props => <CustomHeader {...props} />
-        },
+        HomeStack,
+        OrdersStack,
+        ProfileStack,
+    },
+    {
         tabBarOptions: {
             activeTintColor: '#F4B13E',
             activeBackgroundColor: '#f0f0f0',
@@ -123,24 +114,6 @@ const MainTabNavigator = createBottomTabNavigator({
     }
 );
 
-const styles = StyleSheet.create({
-    iconHome: {
-        width: 30,
-        height: 30
-    }
-});
-
-// const DrawerNavigator = createDrawerNavigator({
-//     Home:{
-//       screen: MainTabNavigator
-//     },
-//     Profile: Profile
-//   }, {
-//     initialRouteName: 'Home',
-//     // contentComponent: props => <SideBar {...props} />,
-//   }
-// );
-
 const DrawerNavigator = createStackNavigator({
     Home: {
         screen: MainTabNavigator
@@ -153,6 +126,13 @@ const DrawerNavigator = createStackNavigator({
     }
 }
 );
+
+const styles = StyleSheet.create({
+    iconHome: {
+        width: 30,
+        height: 30
+    }
+});
 
 export default StackNavigator = createStackNavigator({
     DrawerNavigator: {

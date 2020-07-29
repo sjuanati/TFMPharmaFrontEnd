@@ -6,18 +6,15 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import CustomHeader from '../../navigation/CustomHeader';
 import Cons from '../../shared/Constants';
 import ActivityIndicator from '../../UI/ActivityIndicator';
 import { httpUrl } from '../../../urlServer';
 import { setData } from '../../store/actions/pharmacy';
 import showToast from '../../shared/Toast';
-import logger from '../../shared/logRecorder';
 
 const home = (props) => {
 
@@ -27,7 +24,6 @@ const home = (props) => {
     }, []);
 
     const dispatch = useDispatch();
-    const pharmacy = useSelector(state => state.pharmacy);
     const [isLoading, setIsLoding] = useState(false);
     const [openOrdersPrice, setOpenOrdersPrice] = useState('...');
     const [openOrdersPreparation, setOpenOrdersPreparation] = useState('...');
@@ -61,14 +57,14 @@ const home = (props) => {
                         res[0].street,
                         res[0].zip_code,
                         res[0].locality,
-                        res[0].country
+                        res[0].country,
+                        res[0].eth_address,
                     ));
                 }
             })
             .catch(err => {
                 if (err.response && err.response.status === 404) {
                     showToast('Ha ocurrido un error', 'danger');
-                    logger('ERR', 'FRONT-PHARMA', `Home.js -> fetchPharmacy(): ${err}`, pharmacy, '');
                 } else {
                     showToast('Ups... parece que no hay conexión', 'warning');
                 }
@@ -104,7 +100,6 @@ const home = (props) => {
             .catch(err => {
                 if (err.response && err.response.status === 404) {
                     showToast('Ha ocurrido un error', 'danger');
-                    logger('ERR', 'FRONT-PHARMA', `Home.js -> fetchKPIs() -> Orders: ${err}`, pharmacy, '');
                 } else {
                     showToast('Ups... parece que no hay conexión', 'warning');
                 }
@@ -116,21 +111,20 @@ const home = (props) => {
 
     return (
         <View style={styles.container}>
-            <CustomHeader {...props} />
             <ScrollView style={styles.container}>
                 <ActivityIndicator isLoading={isLoading} />
                 <View style={styles.header}>
-                    <Text style={styles.textHeader}> Pedidos </Text>
+                    <Text style={styles.textHeader}> Orders </Text>
                 </View>
                 <View style={[styles.containerItems, styles.color1]}>
                     <Text style={styles.number}>{openOrdersPrice} </Text>
-                    <Text style={styles.text}>pendientes de</Text>
-                    <Text style={styles.textBold}> precio </Text>
+                    <Text style={styles.text}>waiting on</Text>
+                    <Text style={styles.textBold}> confirmation </Text>
                 </View>
                 <View style={[styles.containerItems, styles.color2]}>
                     <Text style={styles.number}>{openOrdersPreparation} </Text>
-                    <Text style={styles.text}> pendientes de</Text>
-                    <Text style={styles.textBold}> preparación </Text>
+                    <Text style={styles.text}> waiting on </Text>
+                    <Text style={styles.textBold}> preparation </Text>
                 </View>
               
                 <TouchableOpacity
@@ -139,7 +133,7 @@ const home = (props) => {
                     >
                     <View style={styles.containerIconButton}>
                         <Ionicons name="ios-refresh" size={20} color={Cons.COLORS.BLUE} />
-                        <Text style={styles.textRefresh}>   Refrescar </Text>
+                        <Text style={styles.textRefresh}> Refresh </Text>
                     </View> 
                 </TouchableOpacity>
             </ScrollView>

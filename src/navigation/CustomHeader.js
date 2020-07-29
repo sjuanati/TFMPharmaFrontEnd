@@ -1,32 +1,30 @@
-import React, { useState } from 'react';
-import { Button, Text, Container, Card, CardItem, Body, Content, Header, Title, Left, Icon, Right } from "native-base";
-import { StyleSheet, Image, TouchableOpacity } from 'react-native'
+import React from 'react';
+import { 
+  Body, 
+  Header, 
+  Left, 
+  Right 
+} from "native-base";
+import { 
+  Image,
+  StyleSheet, 
+} from 'react-native'
 
-const profileYellow = require('../assets/images/bottomBar/yellow/profile.png');
-const drmax = require('../assets/images/global/DrMax.png');
 
-const customHeader = ( props ) => {
-
-  const showProfile = async () => {
-    await props.navigation.navigate('Profile', props);
-  };
-
+const customHeader = (props) => {
+  const drmax = require('../assets/images/global/DrMax.png');
+  
   return (
     <Header style={styles.header}>
       <Left style={styles.left}>
       </Left>
       <Body style={styles.body}>
-      <Image
-        style={styles.logo}
-        source={drmax}
-      />
+        <Image
+          style={styles.logo}
+          source={drmax}
+        />
       </Body>
       <Right style={styles.right}>
-        {/* <TouchableOpacity onPress={showProfile}>
-          <Image
-            style={styles.iconHeader}
-            source={profileYellow}/>
-        </TouchableOpacity> */}
       </Right>
     </Header>
   )
@@ -40,7 +38,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     alignItems: 'center',
-    marginTop: -20,
   },
   right: {
     flex: 1
@@ -50,7 +47,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     resizeMode: 'contain',
-    width: 170
+    width: 150,
+    height: 50,
   },
   iconHeader: {
     height: 25,

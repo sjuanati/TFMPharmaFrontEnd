@@ -1,19 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Col, Spinner, Button, Icon, Form, Text, Container, Content, Toast, ListItem, Right, Body, Item, Input, Label } from "native-base";
-import { View, StyleSheet, Alert, FlatList, Keyboard, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { 
+    Grid, 
+    Col, 
+    Spinner, 
+    Button, 
+    Icon, 
+    Text, 
+    Container, 
+    Content, 
+    ListItem, 
+    Right, 
+    Body, 
+} from "native-base";
+import { 
+    View, 
+    StyleSheet, 
+    Alert, 
+    FlatList, 
+} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
 import { httpUrl } from '../../../urlServer';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomHeaderBack from '../../navigation/CustomHeaderBack';
 import showToast from '../../shared/Toast';
+import handleAxiosErrors from '../../shared/handleAxiosErrors';
 
 const getOrderDetail = (props) => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState([]);
-    const [pharmacy, setPharmacy] = useState({});
-    const [token, setToken] = useState(async () => '');
+    const pharma = useSelector(state => state.pharmacy);
 
     useEffect(() => {
         startFunctions()
@@ -24,17 +40,11 @@ const getOrderDetail = (props) => {
 
     const startFunctions = async () => {
         try {
-            let usr = JSON.parse(await AsyncStorage.getItem('pharmacy'));
-            setPharmacy(usr);
-            let tkn = await AsyncStorage.getItem('token');
-            setToken(tkn);
-
-            let order_id = props.navigation.getParam('order');
-
-            await getOrder(usr.pharmacy_id, order_id, tkn);
+            const order_id = props.navigation.getParam('order');
+            await getOrder(pharma.pharmacy_id, order_id, pharma.token);
             setLoading(false);
-        } catch (error) {
-            throw error;
+        } catch (err) {
+            console.log(err);
         }
     };
 
@@ -52,18 +62,10 @@ const getOrderDetail = (props) => {
                 setOrder(ordr => [...ordr, ...order]);
                 setLoading(false);
             } else {
-                { showToast("Ha ocurrido un error") }
+                showToast("Error while retrieveing orders");
             }
         }).catch(async err => {
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                { showToast("Por favor, vuelve a entrar") }
-                await AsyncStorage.clear();
-                props.navigation.navigate('StartScreen');
-            } else if (err.response && err.response.status === 400) {
-                { showToast("Ha ocurrido un error") }
-            } else {
-                { showToast("Ups... parece que no hay conexión") }
-            }
+            handleAxiosErrors(props, err);
             setLoading(false);
         });
     };
@@ -83,8 +85,9 @@ const getOrderDetail = (props) => {
                         order_id: order[0].order_id,
                         pharmacy_id: order[0].pharmacy_id,
                         user_id: order[0].user_id,
+                        eth_address: pharma.eth_address,
                     }, {
-                        headers: { authorization: token }
+                        headers: { authorization: pharma.token }
                     }).then(async res => {
                         if (res.status === 200 && res.data.order) {
                             let ordr = res.data.order;
@@ -93,15 +96,7 @@ const getOrderDetail = (props) => {
                             showToast("Error during Order status change");
                         }
                     }).catch(async err => {
-                        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                            { showToast("Please sign in again") }
-                            await AsyncStorage.clear();
-                            props.navigation.navigate('StartScreen');
-                        } else if (err.response && err.response.status === 400) {
-                            showToast("Error during Order status change");
-                        } else {
-                            showToast("No connection available");
-                        }
+                        handleAxiosErrors(props, err);
                     });
                 }
             }],
@@ -301,15 +296,14 @@ const getOrderDetail = (props) => {
         </Container>
     );
 
-    const openImage = (item) => {
-        props.navigation.navigate('FullScreenImage', {
-            order: item
-        });
-    };
+    // const openImage = (item) => {
+    //     props.navigation.navigate('FullScreenImage', {
+    //         order: item
+    //     });
+    // };
 
     return (
         <Container>
-            <CustomHeaderBack {...props} />
             {(loading || !order[0]) ?
                 <Spinner color='#F4B13E' /> :
                 RenderPage()

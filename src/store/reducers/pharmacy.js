@@ -22,6 +22,7 @@ const initialState = {
     instagram: null,
     whatsapp: null,
     //icon: null,
+    eth_address: null,
 };
 
 const setData = (state, action) => {
@@ -44,7 +45,7 @@ const setData = (state, action) => {
             facebook: action.facebook,
             instagram: action.instagram,
             whatsapp: action.whatsapp,
-
+            eth_address: action.eth_address,
         }
     }
 }

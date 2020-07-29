@@ -61,12 +61,11 @@ const customHeaderBack = ( props ) => {
 const styles = StyleSheet.create({
   mainHeader: {
     backgroundColor: 'white',
-    height: 60, //110,
+    height: 60,
   },
   body: {
     flex: 1,
     alignItems: 'center',
-    marginTop: -20,
   },
   right: {
     flex: 1
@@ -76,7 +75,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     resizeMode: 'contain',
-    width: 170,
+    width: 150,
+    height: 50,
    },
   iconHeader: {
     height: 25,

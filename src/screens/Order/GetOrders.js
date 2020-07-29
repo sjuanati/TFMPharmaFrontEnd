@@ -24,13 +24,12 @@ import {
 import axios from 'axios';
 import { httpUrl } from '../../../urlServer';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomHeader from '../../navigation/CustomHeader';
-import AsyncStorage from '@react-native-community/async-storage';
 import { setModifiedOrder, setOrdersPage } from '../../store/actions/order';
+import handleAxiosErrors from '../../shared/handleAxiosErrors';
 
 
 const getOrders = (props) => {
-    
+
     const dispatch = useDispatch();
     const modifiedOrder = useSelector(state => state.order.modifiedOrder);
     const ordersPage = useSelector(state => state.order.ordersPage);
@@ -185,7 +184,7 @@ const getOrders = (props) => {
     };
 
     const getOrders = async () => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
 
             axios.get(`${httpUrl}/order/get/pharmacy`, {
                 params: {
@@ -201,19 +200,10 @@ const getOrders = (props) => {
                     setLoading(false);
                     resolve();
                 } else {
-                    { showToast("Ha ocurrido un error") }
+                    showToast("There was an error");
                 }
             }).catch(async err => {
-                console.log('nok')
-                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                    { showToast("Por favor, vuelve a entrar") }
-                    await AsyncStorage.clear();
-                    props.navigation.navigate('StartScreen');
-                } else if (err.response && err.response.status === 400) {
-                    { showToast("Ha ocurrido un error") }
-                } else {
-                    { showToast("Ups... parece que no hay conexión") }
-                }
+                handleAxiosErrors(props, err);
                 setLoading(false);
             });
         });
@@ -226,7 +216,7 @@ const getOrders = (props) => {
                 order: item.order_id
             });
         } else {
-            console.log('error opening order')
+            console.log('Error opening Order')
         }
     };
 
@@ -309,14 +299,13 @@ const getOrders = (props) => {
     const RenderOrders = () => {
         return (
             <Container>
-                {(orders && (orders.length === 0 || orders.length === 1)) ?
-                    <View style={styles.viewContent}>
+                {(orders && (orders.length === 0 || orders.length === 1))
+                    ? <View style={styles.viewContent}>
                         <Text style={styles.noItems}>
-                            No hay ningun pedido
-          </Text>
+                            No Orders found
+                        </Text>
                     </View>
-                    :
-                    <View style={styles.viewContent}>
+                    : <View style={styles.viewContent}>
                         <FlatList data={orders}
                             initialNumToRender={orders.length}
                             renderItem={renderItem}
@@ -335,11 +324,10 @@ const getOrders = (props) => {
 
     return (
         <Container>
-            <CustomHeader {...props} />
             <Header noShadow style={styles.headerTitle}>
                 <Left style={styles.left}>
                     <Text style={styles.titlePage}>
-                        Pedidos
+                        Orders
           </Text>
                 </Left>
                 <Right />
@@ -349,7 +337,7 @@ const getOrders = (props) => {
                 <Item>
                     <Item>
                         <Icon name="ios-search" />
-                        <Input placeholder="Usuario ..."
+                        <Input placeholder="Find User"
                             value={searchText}
                             onChangeText={(text) => {
                                 setSearchText(text);
@@ -358,14 +346,13 @@ const getOrders = (props) => {
                     </Item>
                 </Item>
                 {
-                    (filters.grey) ?
-                        <TouchableOpacity onPress={async () => {
+                    (filters.grey)
+                        ? <TouchableOpacity onPress={async () => {
                             if (filters.grey && filters.yellow && filters.green && filters.red) {
                                 let modFilters = { ...filters };
                                 modFilters.yellow = false;
                                 modFilters.green = false;
                                 modFilters.red = false;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -375,7 +362,6 @@ const getOrders = (props) => {
                                 modFilters.green = true;
                                 modFilters.red = true;
                                 modFilters.grey = true;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -384,11 +370,10 @@ const getOrders = (props) => {
                             <Badge style={{ backgroundColor: 'grey', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, marginHorizontal: 7, marginTop: 15 }}>
                                 <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
                             </Badge>
-                        </TouchableOpacity> :
-                        <TouchableOpacity onPress={async () => {
+                        </TouchableOpacity>
+                        : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.grey = true;
-
                             setFilters(modFilters);
                             let orders = await findOrder(searchText, originalOrders, modFilters);
                             setOrders(orders);
@@ -399,14 +384,13 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
                 {
-                    (filters.yellow) ?
-                        <TouchableOpacity onPress={async () => {
+                    (filters.yellow)
+                        ? <TouchableOpacity onPress={async () => {
                             if (filters.grey && filters.yellow && filters.green && filters.red) {
                                 let modFilters = { ...filters };
                                 modFilters.grey = false;
                                 modFilters.green = false;
                                 modFilters.red = false;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -416,7 +400,6 @@ const getOrders = (props) => {
                                 modFilters.green = true;
                                 modFilters.red = true;
                                 modFilters.grey = true;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -425,14 +408,13 @@ const getOrders = (props) => {
                             <Badge warning style={styles.filterBadge}>
                                 <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
                             </Badge>
-                        </TouchableOpacity> :
-                        <TouchableOpacity onPress={async () => {
+                        </TouchableOpacity>
+                        : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.yellow = true;
                             modFilters.green = false;
                             modFilters.red = false;
                             modFilters.grey = false;
-
                             setFilters(modFilters);
                             let orders = await findOrder(searchText, originalOrders, modFilters);
                             setOrders(orders);
@@ -443,14 +425,13 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
                 {
-                    (filters.green) ?
-                        <TouchableOpacity onPress={async () => {
+                    (filters.green)
+                        ? <TouchableOpacity onPress={async () => {
                             if (filters.grey && filters.yellow && filters.green && filters.red) {
                                 let modFilters = { ...filters };
                                 modFilters.grey = false;
                                 modFilters.yellow = false;
                                 modFilters.red = false;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -460,7 +441,6 @@ const getOrders = (props) => {
                                 modFilters.green = true;
                                 modFilters.red = true;
                                 modFilters.grey = true;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -469,14 +449,13 @@ const getOrders = (props) => {
                             <Badge success style={styles.filterBadge}>
                                 <Icon name="checkmark" style={{ fontSize: 14, color: "#fff" }} />
                             </Badge>
-                        </TouchableOpacity> :
-                        <TouchableOpacity onPress={async () => {
+                        </TouchableOpacity>
+                        : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.yellow = false;
                             modFilters.green = true;
                             modFilters.red = false;
                             modFilters.grey = false;
-
                             setFilters(modFilters);
                             let orders = await findOrder(searchText, originalOrders, modFilters);
                             setOrders(orders);
@@ -487,14 +466,13 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
                 {
-                    (filters.red) ?
-                        <TouchableOpacity onPress={async () => {
+                    (filters.red) 
+                        ? <TouchableOpacity onPress={async () => {
                             if (filters.grey && filters.yellow && filters.green && filters.red) {
                                 let modFilters = { ...filters };
                                 modFilters.grey = false;
                                 modFilters.yellow = false;
                                 modFilters.green = false;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -504,7 +482,6 @@ const getOrders = (props) => {
                                 modFilters.green = true;
                                 modFilters.red = true;
                                 modFilters.grey = true;
-
                                 setFilters(modFilters);
                                 let orders = await findOrder(searchText, originalOrders, modFilters);
                                 setOrders(orders);
@@ -513,14 +490,13 @@ const getOrders = (props) => {
                             <Badge danger style={styles.filterBadge}>
                                 <Icon name="close" style={{ fontSize: 14, color: "#fff" }} />
                             </Badge>
-                        </TouchableOpacity> :
-                        <TouchableOpacity onPress={async () => {
+                        </TouchableOpacity> 
+                        : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.yellow = false;
                             modFilters.green = false;
                             modFilters.red = true;
                             modFilters.grey = false;
-
                             setFilters(modFilters);
                             let orders = await findOrder(searchText, originalOrders, modFilters);
                             setOrders(orders);
@@ -531,20 +507,15 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
             </Header>
-            {(loading) ?
-                <Spinner color='#F4B13E' /> :
-                <RenderOrders />
+            {(loading) 
+                ? <Spinner color='#F4B13E' /> 
+                : <RenderOrders />
             }
         </Container>
     )
 };
 
 const styles = StyleSheet.create({
-    container: {
-        // flex: 1,
-        // alignItems: 'center',
-        // justifyContent: 'center'
-    },
     body: {
         height: 80,
         justifyContent: 'center',
@@ -588,8 +559,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     noItems: {
+        marginTop: 20,
         color: 'gray',
-        fontSize: 12,
+        fontSize: 18,
         textAlign: 'center'
     },
     filterBadge: {
@@ -610,19 +582,19 @@ const styles = StyleSheet.create({
         opacity: 0.3
     },
     statusGrey: {
-        color: 'grey', 
+        color: 'grey',
         fontSize: 13,
     },
     statusYellow: {
-        color: '#f0ad4e', 
+        color: '#f0ad4e',
         fontSize: 13,
     },
     statusGreen: {
-        color: '#5cb85c', 
+        color: '#5cb85c',
         fontSize: 13,
     },
     statusRed: {
-        color: '#d9534f', 
+        color: '#d9534f',
         fontSize: 13,
     },
 });

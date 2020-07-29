@@ -1,7 +1,7 @@
 import * as actionTypes from './actionTypes';
 
 export const setData = (pharmacy_id, token, status, pharmacy_code, pharmacy_desc, owner_name, nif, phone_number, 
-                        email, web, street, zip_code, locality, country) => ({
+                        email, web, street, zip_code, locality, country, eth_address) => ({
     type: actionTypes.SET_DATA,
     pharmacy_id: pharmacy_id, 
     token: token, 
@@ -16,7 +16,8 @@ export const setData = (pharmacy_id, token, status, pharmacy_code, pharmacy_desc
     street: street,
     zip_code: zip_code,
     locality: locality,
-    country: country
+    country: country,
+    eth_address: eth_address,
 });
 
 export const updateData = (pharmacy_id, token, pharmacy_desc, phone_number, email) => ({
