@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Grid, 
-    Col, 
-    Spinner, 
-    Button, 
-    Icon, 
-    Text, 
-    Container, 
-    Content, 
-    ListItem, 
-    Right, 
-    Body, 
-} from "native-base";
-import { 
-    View, 
-    StyleSheet, 
-    Alert, 
-    FlatList, 
+import {
+    View,
+    Text,
+    Alert,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import {
+    Col,
+    Grid,
+    Button,
+    Spinner,
+    ListItem,
+    Container,
+} from "native-base";
 import axios from 'axios';
+import moment from 'moment';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { httpUrl } from '../../../urlServer';
 import { useDispatch, useSelector } from 'react-redux';
 import showToast from '../../shared/Toast';
 import handleAxiosErrors from '../../shared/handleAxiosErrors';
 
 const getOrderDetail = (props) => {
-    const dispatch = useDispatch();
+    //const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState([]);
+    const [orderTraceStatus, setOrderTraceStatus] = useState('PENDING');
     const pharma = useSelector(state => state.pharmacy);
 
     useEffect(() => {
@@ -42,11 +41,23 @@ const getOrderDetail = (props) => {
         try {
             const order_id = props.navigation.getParam('order');
             await getOrder(pharma.pharmacy_id, order_id, pharma.token);
+            await fetchOrderTraceGlobal(order_id);
             setLoading(false);
         } catch (err) {
             console.log(err);
         }
     };
+
+    const fetchOrderTraceGlobal = async (order_id) => {
+        await axios.get(`${httpUrl}/trace/order/global`, {
+            params: { order_id: order_id },
+            headers: { authorization: pharma.token }
+        }).then(res => {
+            setOrderTraceStatus(res.data);
+        }).catch(err => {
+            console.log('Error in GetOrderDetail.js -> fetchOrderTraceGlobal() : ', err);
+        });
+    }
 
     const getOrder = async (pharmacy_id, order_id, token) => {
         axios.get(`${httpUrl}/order/get/item/pharmacy`, {
@@ -56,7 +67,7 @@ const getOrderDetail = (props) => {
             },
             headers: { authorization: token }
         }).then(async res => {
-            console.log(res.status, res.data);
+            console.log('Eoooo', res.status, res.data);
             if (res.status === 200 || res.status === 304) {
                 let order = res.data;
                 setOrder(ordr => [...ordr, ...order]);
@@ -97,7 +108,7 @@ const getOrderDetail = (props) => {
                         }
                     }).catch(async err => {
                         handleAxiosErrors(props, err);
-                    });
+                    })
                 }
             }],
             { cancelable: false }
@@ -136,7 +147,6 @@ const getOrderDetail = (props) => {
         if (order[0].status === 1) {
             return (
                 <View style={{ flex: 1 }}>
-                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
@@ -163,7 +173,6 @@ const getOrderDetail = (props) => {
         } else if (order[0].status === 2) {
             return (
                 <View>
-                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
@@ -200,7 +209,6 @@ const getOrderDetail = (props) => {
         } else if (order[0].status === 3 || order[0].status === 4) {
             return (
                 <View>
-                    <Text style={{ marginLeft: 5 }}>Change Status:</Text>
                     <Grid>
                         <Col style={styles.colButton}>
                             <Button block bordered rounded danger
@@ -229,133 +237,201 @@ const getOrderDetail = (props) => {
         }
     };
 
-
     const renderItem = ({ item, index }) => {
+        item.screen = 'GetOrderDetail'
         return (
-            <View>
-                <ListItem style={{ marginLeft: 0 }}
-                    // onPress={() => (item.photo && item.photo !== '') ?
-                    //     openImage(item) : null}
-                    id={item.order_item}
-                    >
-                    <Body style={{ flex: 0.8 }}>
-                        <Text note>
-                            Item {index + 1}:
-                        </Text>
-                        <Text>
-                            {item.product_desc}
-                        </Text>
-                    </Body>
-                    <Right style={{ flex: 0.2 }}>
-                        {(item.photo && item.photo !== '') ?
-                            <Icon name="ios-attach" color='gray' />
-                            : null
-                        }
-                    </Right>
-                </ListItem>
-            </View>
+            <ListItem
+                id={item.order_item}
+                onPress={() => props.navigation.navigate('ProductDetail', item)}
+                bottomDivider
+                chevron
+            >
+                {/* <View>
+                        <Text>{index + 1} - {item.product_desc}</Text>
+                        <Text>{item.price} € </Text>
+                    </View> */}
+                <View style={styles.test}>
+                    <View style={styles.leftColumn}>
+                        <Text>{index + 1} - {item.product_desc}</Text>
+                    </View>
+                    <View style={styles.rightColumn}>
+                        <Text>{item.price} € </Text>
+                    </View>
+                </View>
+            </ListItem>
         )
     };
 
     const RenderList = () => {
         return (
-            <Container>
-                <View style={styles.viewContent}>
-                    <FlatList
-                        data={order}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.order_item.toString()}>
-                    </FlatList>
-                </View>
-            </Container>
+            <FlatList
+                data={order}
+                renderItem={renderItem}
+                keyExtractor={item => item.order_item.toString()}>
+            </FlatList>
         );
     };
 
-    const RenderPage = () => (
-        <Container>
-            <Content padder>
-                <Grid>
-                    <Col style={styles.startCols}>
-                        <Text style={{ marginLeft: 5 }}>
-                            {order[0].name}
-                        </Text>
-                        <RenderDate date={new Date(order[0].creation_date)} />
-                    </Col>
-                </Grid>
-                <View style={{ alignItems: 'center', marginVertical: 15 }}>
-                    {
-                        (order[0].total_price) ?
-                            <Text style={{ marginBottom: 5 }}>{order[0].total_price} € </Text>
-                            : null
-                    }
-                    {StatusOrder(order[0].status)}
-                </View>
-                {RenderActionButtons()}
-            </Content>
-            <RenderList />
-        </Container>
-    );
+    const openTrace = (item) => {
+        props.navigation.navigate('OrderTrace', {
+            order_id: item
+        });
+    }
 
-    // const openImage = (item) => {
-    //     props.navigation.navigate('FullScreenImage', {
-    //         order: item
-    //     });
-    // };
+    const showOrderTraceStatus = () => {
+        switch (orderTraceStatus) {
+            case 'PENDING':
+                return (
+                    <Ionicons
+                        name='ios-ellipsis-horizontal-circle-outline'
+                        size={25}
+                        color='orange'
+                    />)
+            case 'OK':
+                return (
+                    <Ionicons
+                        name='ios-checkmark-circle-outline'
+                        size={25}
+                        color='green'
+                    />)
+            case 'NOK':
+                return (
+                    <Ionicons
+                        name='close-circle-outline'
+                        size={25}
+                        color='red'
+                    />)
+            default:
+                return (
+                    <Ionicons
+                        name='alert-circle-outline'
+                        size={25}
+                        color='red'
+                    />)
+        }
+    }
+
+    const RenderPage = () => (
+        <View>
+            <View style={styles.headerContainer}>
+                <Text style={styles.titleText}> Order </Text>
+            </View>
+            <View style={styles.sectionContainer}>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> Reference: </Text>
+                    <Text style={styles.rowValue}> #{order[0].order_id_app} </Text>
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> Date: </Text>
+                    <Text style={styles.rowValue}> {moment(order[0].creation_date).format('Do MMMM YY - HH:mm:ss')} </Text>
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> User: </Text>
+                    <Text style={styles.rowValue}> {order[0].name} </Text>
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> Status: </Text>
+                    <Text style={styles.rowValue}> {StatusOrder(order[0].status)} </Text>
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> Price: </Text>
+                    <Text style={styles.rowValue}> {order[0].total_price} € </Text>
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={styles.rowHeader}> Trace: </Text>
+                    {showOrderTraceStatus()}
+
+                    <TouchableOpacity
+                        style={styles.buttonDetails}
+                        onPress={() => openTrace(order[0].order_id)}
+                    >
+                        <Text style={[styles.rowValue, styles.buttonText]}> Details </Text>
+                    </TouchableOpacity>
+                </View>
+                <RenderList />
+            </View>
+            {RenderActionButtons()}
+        </View>
+    );
 
     return (
         <Container>
-            {(loading || !order[0]) ?
-                <Spinner color='#F4B13E' /> :
-                RenderPage()
+            {(loading || !order[0])
+                ? <Spinner color='#F4B13E' />
+                : RenderPage()
             }
         </Container>
     )
 };
 
 const styles = StyleSheet.create({
-    container: {
-    },
-    startCols: {
-        justifyContent: 'center',
-        marginTop: 5
-    },
-    mainHeader: {
-        backgroundColor: 'white',
-        height: 60
-    },
-    body: {
+    test: {
         flex: 1,
+        flexDirection: 'row',
         alignItems: 'center'
     },
-    pharmacyName: {
-        color: 'black'
+    leftColumn: {
+        flex: 0.8
     },
-    left: {
-        flex: 1
+    rightColumn: {
+        justifyContent: 'center',
+        marginLeft: 10,
     },
-    right: {
-        flex: 1
+    headerContainer: {
+        margin: 15,
+        borderBottomWidth: 0.3,
+        borderColor: 'orange',
     },
-    headerTitle: {
-        marginStart: 5,
+    sectionContainer: {
         marginTop: 5,
-        backgroundColor: 'white',
-        borderWidth: 0,
-        height: 35,
-        alignItems: 'flex-start'
     },
-    titlePage: {
-        fontSize: 30,
+    rowContainer: {
+        flexDirection: 'row',
+        marginTop: 10,
+    },
+    rowHeader: {
+        color: 'grey',
+        width: 110,
+        fontSize: 16,
+    },
+    rowValue: {
+        fontSize: 16,
+    },
+    titleText: {
+        fontSize: 26,
         fontWeight: 'bold',
-        textAlign: 'left'
     },
+    buttonText: {
+        color: 'white'
+    },
+    buttonDetails: {
+        backgroundColor: '#00A591',
+        marginLeft: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        borderRadius: 15,
+        justifyContent: 'center'
+    },
+    // circleContainer: {
+    //     width: 20,
+    //     height: 20,
+    //     borderRadius: 20 / 2,
+    //     backgroundColor: 'orange',
+    //     borderColor: 'black',
+    //     borderWidth: 1
+    //   },
+    // container_bottom: {
+    //     position: 'absolute',
+    //     alignSelf: 'center',
+    //     flexDirection: 'row',
+    //     bottom: 15,
+    // },
     button: {
         marginTop: '2%',
         backgroundColor: '#F4B13E'
     },
     buttonCanceled: {
         marginTop: '2%'
-        // borderColor: 'red'
     },
     buttonDelivered: {
         marginTop: '2%'
@@ -376,19 +452,19 @@ const styles = StyleSheet.create({
     },
     statusGrey: {
         color: 'grey',
-        fontSize: 13,
+        fontSize: 15,
     },
     statusYellow: {
         color: '#f0ad4e',
-        fontSize: 13,
+        fontSize: 15,
     },
     statusGreen: {
         color: '#5cb85c',
-        fontSize: 13,
+        fontSize: 15,
     },
     statusRed: {
         color: '#d9534f',
-        fontSize: 13,
+        fontSize: 15,
     },
 });
 

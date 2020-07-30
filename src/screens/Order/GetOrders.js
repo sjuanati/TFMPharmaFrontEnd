@@ -228,10 +228,10 @@ const getOrders = (props) => {
                         style={{ marginLeft: 0 }}
                         id={item.item.order_id.toString()}>
                         <Left style={{ flex: 0.6 }}>
-                            <Text>Pedido</Text>
+                            <Text>Order</Text>
                         </Left>
                         <Body style={{ flex: 0.4 }}>
-                            <Text>Estado</Text>
+                            <Text>Status</Text>
                         </Body>
                     </ListItem>
                     :
@@ -239,13 +239,12 @@ const getOrders = (props) => {
                         id={item.item.order_id.toString()}>
                         <Body style={{ flex: 0.6, paddingLeft: 5 }}>
                             <TouchableOpacity onPress={() => openOrder(item)}>
-                                <Text>{item.item.name}</Text>
-                                {
-                                    (item.item.total_price) ?
-                                        <Text note numberOfLines={1}>
-                                            {item.item.total_price} € - <RenderDate date={new Date(item.item.creation_date)} />
-                                        </Text> :
-                                        <RenderDate date={new Date(item.item.creation_date)} />
+                                <Text>#{item.item.order_id_app} - {item.item.name}</Text>
+                                {(item.item.total_price)
+                                    ? <Text note numberOfLines={1}>
+                                        {item.item.total_price} € - <RenderDate date={new Date(item.item.creation_date)} />
+                                    </Text>
+                                    : <RenderDate date={new Date(item.item.creation_date)} />
                                 }
                             </TouchableOpacity>
                         </Body>
@@ -466,7 +465,7 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
                 {
-                    (filters.red) 
+                    (filters.red)
                         ? <TouchableOpacity onPress={async () => {
                             if (filters.grey && filters.yellow && filters.green && filters.red) {
                                 let modFilters = { ...filters };
@@ -490,7 +489,7 @@ const getOrders = (props) => {
                             <Badge danger style={styles.filterBadge}>
                                 <Icon name="close" style={{ fontSize: 14, color: "#fff" }} />
                             </Badge>
-                        </TouchableOpacity> 
+                        </TouchableOpacity>
                         : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.yellow = false;
@@ -507,8 +506,8 @@ const getOrders = (props) => {
                         </TouchableOpacity>
                 }
             </Header>
-            {(loading) 
-                ? <Spinner color='#F4B13E' /> 
+            {(loading)
+                ? <Spinner color='#F4B13E' />
                 : <RenderOrders />
             }
         </Container>

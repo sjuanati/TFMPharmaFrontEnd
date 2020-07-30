@@ -6,8 +6,10 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import Home from '../screens/Home/Home';
 import Orders from '../screens/Order/GetOrders';
 import OrderDetail from '../screens/Order/GetOrderDetail';
+import OrderTrace from '../screens/Order/GetOrderTrace';
 import Profile from '../screens/Profile/Profile';
-import FullScreenImage from '../screens/Order/getOrderImage';
+import ProductDetail from '../screens/Order/ProductDetail';
+import Tokens from '../screens/Tokens/Token';
 import CustomHeader from '../navigation/CustomHeader';
 import CustomHeaderBack from '../navigation/CustomHeaderBack';
 
@@ -15,6 +17,8 @@ const homeOrange = require('../assets/images/bottomBar/yellow/home-orange.png');
 const homeGrey = require('../assets/images/bottomBar/grey/home-grey.png');
 const ordersOrange = require('../assets/images/bottomBar/yellow/list-orange.png');
 const ordersGrey = require('../assets/images/bottomBar/grey/list-grey.png');
+const ethereumOrange = require('../assets/images/bottomBar/yellow/ethereum-orange.png');
+const ethereumGrey = require('../assets/images/bottomBar/grey/ethereum-grey.png');
 const profileOrange = require('../assets/images/bottomBar/yellow/user-orange.png');
 const profileGrey = require('../assets/images/bottomBar/grey/user-grey.png');
 
@@ -48,10 +52,14 @@ const OrdersStack = createStackNavigator({
         screen: OrderDetail,
         navigationOptions: { headerShown: true }
     },
-    FullScreenImage: {
-        screen: FullScreenImage,
+    OrderTrace: {
+        screen: OrderTrace,
         navigationOptions: { headerShown: true }
-    }
+    },
+    ProductDetail: {
+        screen: ProductDetail,
+        navigationOptions: { headerShown: true }
+    },
 },
     {
         defaultNavigationOptions: { header: props => <CustomHeaderBack {...props} /> }
@@ -68,6 +76,38 @@ OrdersStack.navigationOptions = {
             <Image
                 style={styles.iconHome}
                 source={ordersGrey} />
+    }
+};
+
+const TokensStack = createStackNavigator({
+    Tokens: {
+        screen: Tokens,
+        navigationOptions: { header: props => <CustomHeader {...props} /> }
+    },
+    // EarnTokensDetail: {
+    //     screen: EarnTokensDetail,
+    //     navigationOptions: { headerShown: true }
+    // },
+    // SpendTokensDetail: {
+    //     screen: SpendTokensDetail,
+    //     navigationOptions: { headerShown: true }
+    // },
+},
+    {
+        defaultNavigationOptions: { header: props => <CustomHeaderBack {...props} /> }
+    }
+);
+
+TokensStack.navigationOptions = {
+    tabBarLabel: 'Tokens',
+    tabBarIcon: ({ focused }) => {
+        return focused
+            ? <Image
+                style={styles.iconHome}
+                source={ethereumOrange} />
+            : <Image
+                style={styles.iconHome}
+                source={ethereumGrey} />
     }
 };
 
@@ -96,6 +136,7 @@ const MainTabNavigator = createBottomTabNavigator(
     {
         HomeStack,
         OrdersStack,
+        TokensStack,
         ProfileStack,
     },
     {
