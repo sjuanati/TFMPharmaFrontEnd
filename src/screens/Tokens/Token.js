@@ -2,26 +2,26 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    Image,
     Alert,
     StyleSheet,
     TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
+import Keypad from '../../UI/Keypad';
 import globalStyles from '../../UI/Style';
 import Cons from '../../shared/Constants';
 import { useSelector } from 'react-redux';
 import { httpUrl } from '../../../urlServer';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ScrollView } from 'react-native-gesture-handler';
-import visaLogo from '../../assets/images/global/visa.png'
-
+import PaymentVISA from '../../UI/PaymentVISA';
+import ActivityIndicator from '../../UI/ActivityIndicator';
 
 const token = (props) => {
 
     const pharmacy = useSelector(state => state.pharmacy);
     const [balance, setBalance] = useState(-1);
     const [amount, setAmount] = useState('0');
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchTokenBalance();
@@ -49,16 +49,44 @@ const token = (props) => {
         });
     }
 
-    // Add number (controlling that only one comma is possible / only 2 decimals)
-    const handleAddNumber = (num) => {
-        if (!amount.includes(',') || (amount.includes(',') && num !== ',')) {
+    const fetchBuyTokens = async (amount) => {
+        setIsLoading(true);
+        await axios.get(`${httpUrl}/token/buyTokens`, {
+            params: {
+                recipient: pharmacy.eth_address,
+                amount: amount,
+            },
+            headers: { authorization: pharmacy.token }
+        }).then(() => {
+            fetchTokenBalance();
+            setAmount('0');
+            Alert.alert('Amount successfully transferred.');
+        }).catch(err => {
+            console.log('Error in Token.js -> buyTokens(): ', err);
+        }).then(() => {
+            setIsLoading(false)
+        });
+    }
+
+    /**
+     * @dev Add number to the total amount. 
+     * - Only one comma for decimals is allowed
+     * - Only two decimals are allowed
+     * - Maximum length for the total amount is 9 digits
+     * @param num New number to be added to the right of the total amount 
+     */
+    const addNumberHandler = (num) => {
+        if ((!amount.includes(',') || (amount.includes(',') && num !== ',')) && amount.length < 9) {
             if (amount === '0') setAmount(num);
             else if (amount.charAt(amount.length - 3) !== ',') setAmount(amount + num);
         }
     }
 
-    // Remove number (if a number has a preceding comma, it deletes number & comma)
-    const handleRemoveNumber = () => {
+    /**
+     * @dev Remove number from the total amount. 
+     * - If a number has a preceding comma, it deletes number & comma
+     */
+    const removeNumberHandler = () => {
         if (amount.length > 1) {
             if (amount.charAt(amount.length - 2) === ',') setAmount(amount.slice(0, -2));
             else setAmount(amount.slice(0, -1));
@@ -67,10 +95,6 @@ const token = (props) => {
 
     const handlePurchase = () => {
         try {
-            // Convert amount into 2-decimal integer
-            let parsedAmount = Math.round(parseFloat(amount.replace(',', '.')) * 100) / 100;
-            console.log(parsedAmount);
-
             Alert.alert(
                 "Please confirm the purchase",
                 null,
@@ -80,111 +104,27 @@ const token = (props) => {
                 },
                 {
                     text: "OK", onPress: () => {
-                        console.log('Purchased!')
+                        // Convert amount from String into 2-decimal Integer
+                        let parsedAmount = Math.round(parseFloat(amount.replace(',', '.')) * 100) / 100;
+                        fetchBuyTokens(parsedAmount);
                     }
                 }],
                 { cancelable: false }
             );
-
-
-
         } catch (err) {
             console.log('Error on Token.js -> handlePurchase(): ', err);
         }
     }
 
-    const renderKeypad = () => (
-        <View style={styles.keyboardContainer}>
-            <View style={styles.keypadRows}>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('1')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>1</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('2')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>2</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('3')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>3</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.keypadRows}>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('4')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>4</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('5')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>5</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('6')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>6</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.keypadRows}>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('7')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>7</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('8')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>8</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('9')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>9</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.keypadRows}>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber(',')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>,</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleAddNumber('0')}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>0</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => handleRemoveNumber()}
-                    style={styles.key}>
-                    <Text style={styles.keyText}>
-                        <Ionicons
-                            name='arrow-back-sharp'
-                            size={25}
-                        />
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-
-    const renderPaymentMethod = () => (
-        <View style={styles.itemContainer}>
-            <Image
-                style={styles.logoVISA}
-                source={visaLogo} />
-            <Text style={styles.itemText}> 4548 **** **** 3005 </Text>
-            <Text style={styles.itemSmallText}> 08/24</Text>
-        </View>
-    )
-
     const renderPurchaseButton = () => (
-        <View style={styles.container_bottom}>
+        <View style={styles.buttonContainer}>
             <TouchableOpacity
-                style={globalStyles.button}
+                style={((amount !== '0') && (amount !== ','))
+                    ? globalStyles.button
+                    : globalStyles.buttonDisabled}
+                disabled={((amount !== '0') && (amount !== ','))
+                    ? false
+                    : true}
                 onPress={() => handlePurchase()}>
                 <Text style={styles.buttonText}> Buy Now </Text>
             </TouchableOpacity>
@@ -192,7 +132,7 @@ const token = (props) => {
     );
 
     return (
-        <View style={styles.container}>            
+        <View style={styles.container}>
             <ScrollView>
                 <View style={styles.balanceContainer}>
                     <Text style={styles.text}> Current Balance :
@@ -203,10 +143,14 @@ const token = (props) => {
                     </Text>
                 </View>
                 <View style={styles.balanceContainer}>
-                    <Text style={styles.inputContainer}>{amount} €</Text>
+                    <Text style={styles.amountContainer}>{amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €</Text>
                 </View>
-                {renderKeypad()}
-                {renderPaymentMethod()}
+                <Keypad
+                    onAddNumber={addNumberHandler}
+                    onRemoveNumber={removeNumberHandler} />
+                <PaymentVISA />
+                <ActivityIndicator 
+                    isLoading={isLoading} />
             </ScrollView>
             {renderPurchaseButton()}
         </View>
@@ -223,13 +167,10 @@ const styles = StyleSheet.create({
         marginTop: 35,
         alignItems: 'center',
     },
-    inputContainer: {
+    amountContainer: {
         justifyContent: 'center',
         fontSize: 36,
         color: Cons.COLORS.BLUE,
-    },
-    keyboardContainer: {
-        marginTop: 15,
     },
     text: {
         fontSize: 18,
@@ -240,22 +181,7 @@ const styles = StyleSheet.create({
     textGrey: {
         color: 'grey',
     },
-    keypadRows: {
-        marginTop: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-    },
-    key: {
-        width: 50,
-        height: 50,
-        //backgroundColor: 'red',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    keyText: {
-        fontSize: 26,
-    },
-    container_bottom: {
+    buttonContainer: {
         position: 'absolute',
         justifyContent: 'flex-end',
         alignSelf: 'center',
@@ -265,30 +191,6 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 17,
         fontWeight: 'bold',
-    },
-    itemContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 70,
-        margin: 20,
-        paddingLeft: 20,
-        borderWidth: 0.5,
-        borderColor: 'grey',
-        borderRadius: 15,
-    },
-    itemText: {
-        fontSize: 16,
-        fontWeight: '300',
-        paddingLeft: 10,
-    },
-    itemSmallText: {
-        fontSize: 14,
-        color: 'grey',
-        paddingLeft: 20
-    },
-    logoVISA: {
-        resizeMode: 'contain',
-        width: 50
     },
 });
 
