@@ -12,7 +12,8 @@ import { Spinner,
         Input, 
         Toast } from "native-base";
 import axios from 'axios';
-
+import { useDispatch } from 'react-redux';
+import { setToken } from '../../store/actions/pharmacy';
 import { httpUrl } from '../../../urlServer';
 
 const image = require('../../assets/images/login/IsotipoWhite.png');
@@ -20,7 +21,8 @@ const backgroundImage = require('../../assets/images/global/Background.jpg');
 const lockYellow = require('../../assets/images/login/lock.png');
 const emailYellow = require('../../assets/images/login/email.png');
 
-const start = props => {
+const signIn = props => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [pharmacy, setPharmacy] = useState({
     email: '',
@@ -51,11 +53,12 @@ const start = props => {
       }).then(async res => {
         console.log(res.status, res.data, res.data.token);
         if(res.status === 200 && res.data.token) {
-          //await AsyncStorage.clear();
-          await AsyncStorage.setItem('token', JSON.stringify(res.data.token));
+          const newToken = JSON.stringify(res.data.token);
+          await AsyncStorage.setItem('token', newToken);
           await AsyncStorage.setItem('pharmacy', JSON.stringify(res.data));
           setLoading(false);
-          props.navigation.navigate('Main');
+          //props.navigation.navigate('Main');
+          dispatch(setToken(newToken));
         } else {
           {showToast("Ha ocurrido un error")}
           setLoading(false);
@@ -77,9 +80,6 @@ const start = props => {
 
   return (
     <Container style={styles.container}>
-      {/*<ImageBackground*/}
-        {/*style={styles.backgroundImage}*/}
-        {/*source={backgroundImage}>*/}
         <Image
           style={styles.logo}
           source={image}
@@ -212,4 +212,5 @@ const styles = StyleSheet.create({
     color: 'white'
   }
 });
-export default start;
+
+export default signIn;

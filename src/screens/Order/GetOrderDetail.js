@@ -39,7 +39,8 @@ const getOrderDetail = (props) => {
 
     const startFunctions = async () => {
         try {
-            const order_id = props.navigation.getParam('order');
+            //const order_id = props.navigation.getParam('order');
+            const { order_id } = props.route.params;
             await getOrder(pharma.pharmacy_id, order_id, pharma.token);
             await fetchOrderTraceGlobal(order_id);
             setLoading(false);

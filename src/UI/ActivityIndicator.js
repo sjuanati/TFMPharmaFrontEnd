@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
+import {
     View,
     StyleSheet,
-    ActivityIndicator,  
+    ActivityIndicator,
 } from 'react-native';
 
 const activityIndicator = ({ isLoading }) => {
@@ -12,8 +12,7 @@ const activityIndicator = ({ isLoading }) => {
                 size="large"
                 color="#6B5B95"
                 style={styles.loading}
-                animating={(isLoading) ? true : false}
-            />
+                animating={(isLoading) ? true : false} />
         </View>
     )
 }

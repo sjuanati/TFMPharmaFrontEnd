@@ -12,6 +12,8 @@ import { Spinner, Button, Text, Container, Content, Form, Item, Input, Toast } f
 import axios from 'axios';
 import { httpUrl } from '../../../urlServer';
 import CheckBox from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch } from 'react-redux';
+import { setToken } from '../../store/actions/pharmacy';
 
 const image = require('../../assets/images/login/IsotipoWhite.png');
 const backgroundImage = require('../../assets/images/global/Background.jpg');
@@ -22,6 +24,7 @@ const userYellow = require('../../assets/images/login/user.png');
 
 
 const signup = ( props ) => {
+  const dispatch = useDispatch();
   const [isLegalAccepted, setIsLegalAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pharmacy, setPharmacy] = useState({
@@ -85,11 +88,13 @@ const signup = ( props ) => {
           phone: pharmacy.phone
         }).then(async res => {
           if (res.status === 200 && res.data.token) {
+            const newToken = JSON.stringify(res.data.token);
             await AsyncStorage.clear();
-            await AsyncStorage.setItem('token', JSON.stringify(res.data.token));
+            await AsyncStorage.setItem('token', newToken);
             await AsyncStorage.setItem('pharmacy', JSON.stringify(res.data));
             setLoading(false);
-            props.navigation.navigate('Main');
+            //props.navigation.navigate('Main');
+            dispatch(setToken(newToken));
           } else {
             {showToast("Ha ocurrido un error")}
             setLoading(false);

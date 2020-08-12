@@ -213,7 +213,7 @@ const getOrders = (props) => {
         if (item) {
             dispatch(setOrdersPage(false));
             props.navigation.navigate('OrderDetail', {
-                order: item.order_id
+                order_id: item.order_id
             });
         } else {
             console.log('Error opening Order')

@@ -20,6 +20,11 @@ export const setData = (pharmacy_id, token, status, pharmacy_code, pharmacy_desc
     eth_address: eth_address,
 });
 
+export const setToken = (token) => ({
+    type: actionTypes.SET_TOKEN,
+    token: token,
+})
+
 export const updateData = (pharmacy_id, token, pharmacy_desc, phone_number, email) => ({
     type: actionTypes.UPDATE_DATA,
     pharmacy_id: pharmacy_id, 

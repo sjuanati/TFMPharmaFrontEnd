@@ -1,5 +1,5 @@
 import React from 'react';
-import { Root, Button, Text, Container, Content } from "native-base";
+import { Root, Button, Text, Container } from "native-base";
 
 import AppNavigator from './src/navigation/AppNavigator';
 
@@ -20,7 +20,6 @@ export default class App extends React.Component {
     return (
       <Provider store={store}>
         <Container>
-          {/*{Platform.OS === 'ios' && <StatusBar barStyle="default" />}*/}
           <Root>
             <AppNavigator />
           </Root>

@@ -24,9 +24,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { httpUrl } from '../../../urlServer';
 import Cons from '../../shared/Constants'
 import globalStyles from '../../UI/Style';
-import CustomHeader from '../../navigation/CustomHeader';
 import ActivityIndicator from '../../UI/ActivityIndicator';
-import { updateData } from '../../store/actions/pharmacy';
+import { updateData, setToken } from '../../store/actions/pharmacy';
 import logger from '../../shared/logRecorder';
 
 //import imageProfile from '../../assets/images/profile/rod-of-asclepius-100.png';
@@ -49,7 +48,8 @@ const profile = (props) => {
                 {
                     text: 'OK', onPress: async () => {
                         await AsyncStorage.clear();
-                        props.navigation.navigate('Auth');
+                        //props.navigation.navigate('Auth');
+                        dispatch(setToken(null));
                     }
                 },
             ],
@@ -77,16 +77,16 @@ const profile = (props) => {
             if (email && pharmacy.email) {
                 const emailChecked = email.toLowerCase().trim();
                 const emailPattern = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-    
+
                 // Check if email has been updated
                 if (pharmacy.email !== emailChecked) {
-    
+
                     // Check if email structure is correct
                     if (!emailPattern.test(emailChecked)) {
                         Alert.alert('Por favor, introduzca un correo electrónico válido');
                         resolve(false);
                     }
-    
+
                     // Check if email already exists in DB
                     axios.get(`${httpUrl}/pharmacy/check/email`, {
                         params: { user_id: pharmacy.pharmacy_id, email: emailChecked },
@@ -192,7 +192,7 @@ const profile = (props) => {
             .catch(err => {
                 Alert.alert(`Ha habido un error con el correo electrónico`);
                 console.log('Error on Profile.js -> handleEmail(): ', err);
-                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleEmail() : ${err}`, pharmacy,  `email: ${email}`);
+                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleEmail() : ${err}`, pharmacy, `email: ${email}`);
             })
     };
 
@@ -210,7 +210,7 @@ const profile = (props) => {
             .catch(err => {
                 Alert.alert(`Ha habido un error con el navegador`);
                 console.log('Error on Profile.js -> handleURL(): ', err);
-                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleURL() : ${err}`, pharmacy,  `url: ${url}`);
+                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleURL() : ${err}`, pharmacy, `url: ${url}`);
             })
     };
 
@@ -274,7 +274,7 @@ const profile = (props) => {
                     <View style={styles.margins}>
                         <Text style={[styles.text, styles.italic]}>Si deseas modificar otros datos de tu farmacia, por favor, ponte en contacto con nosotros. </Text>
                     </View>
-                    
+
                 </ScrollView>
             </KeyboardAvoidingView>
         </Modal>
@@ -364,7 +364,6 @@ const profile = (props) => {
 
     return (
         <View style={styles.container}>
-            <CustomHeader {...props} />
             <ScrollView style={styles.container}>
                 {renderEditProfile()}
                 {renderShowProfile()}

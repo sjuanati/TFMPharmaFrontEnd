@@ -6,15 +6,15 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native';
+import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
-import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Cons from '../../shared/Constants';
 import ActivityIndicator from '../../UI/ActivityIndicator';
 import { httpUrl } from '../../../urlServer';
 import { setData } from '../../store/actions/pharmacy';
-import showToast from '../../shared/Toast';
+import handleAxiosErrors from '../../shared/handleAxiosErrors';
 
 const home = (props) => {
 
@@ -63,17 +63,13 @@ const home = (props) => {
                 }
             })
             .catch(err => {
-                if (err.response && err.response.status === 404) {
-                    showToast('Ha ocurrido un error', 'danger');
-                } else {
-                    showToast('Ups... parece que no hay conexión', 'warning');
-                }
-                console.log('Error on Home.js -> fetchPharmacy(): ', err);
+                handleAxiosErrors(props, err);
+                console.log('Error in Home.js -> fetchPharmacy():', err);
             })
     }
 
     const fetchKPIs = async () => {
-
+        
         setIsLoding(true);
 
         const pharma = JSON.parse(await AsyncStorage.getItem('pharmacy'));
@@ -98,12 +94,8 @@ const home = (props) => {
                 }
             })
             .catch(err => {
-                if (err.response && err.response.status === 404) {
-                    showToast('Ha ocurrido un error', 'danger');
-                } else {
-                    showToast('Ups... parece que no hay conexión', 'warning');
-                }
-                console.log('Error on Home.js -> fetchKPIs() -> Orders: ', err);
+                handleAxiosErrors(props, err);
+                console.log('Error in Home.js -> fetchKPIs():', err);
             })
 
         setIsLoding(false);
@@ -112,7 +104,6 @@ const home = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView style={styles.container}>
-                <ActivityIndicator isLoading={isLoading} />
                 <View style={styles.header}>
                     <Text style={styles.textHeader}> Orders </Text>
                 </View>
@@ -126,7 +117,7 @@ const home = (props) => {
                     <Text style={styles.text}> waiting on </Text>
                     <Text style={styles.textBold}> preparation </Text>
                 </View>
-              
+                <ActivityIndicator isLoading={isLoading} />
                 <TouchableOpacity
                     onPress={() => fetchKPIs()}
                     style={styles.button}

@@ -50,6 +50,13 @@ const setData = (state, action) => {
     }
 }
 
+const setToken = (state, action) => {
+    return {
+        ...state,
+        ...{token: action.token}
+    }
+}
+
 const updateData = (state, action) => {
     return {
         ...state,
@@ -66,6 +73,7 @@ const reducer = (state = initialState, action) => {
     switch (action.type) {
         case actionTypes.SET_DATA: return setData(state, action);
         case actionTypes.UPDATE_DATA: return updateData(state, action);
+        case actionTypes.SET_TOKEN: return setToken(state, action);
         default: return state;
     }
 };

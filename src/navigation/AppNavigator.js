@@ -1,28 +1,29 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack'
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-community/async-storage';
+import { setToken } from '../store/actions/pharmacy';
+import { LoginStackScreen } from './StackNavigator';
+import { AppTabScreens } from './BottomTabNavigator';
 
-import MainTabNavigator from './MainTabNavigator';
-import Start from '../screens/Login/Start'
-import SignUp from '../screens/Login/SignUp';
-import AuthLoading from '../screens/Login/AuthLoading';
+const appNavigator = () => {
 
-const AuthStack = createStackNavigator(
-  {
-    StartScreen: Start,
-    SignUpScreen: SignUp,
-  }, {
-    defaultNavigationOptions: {
-      headerShown: false
-    }
-  }
-);
+    const dispatch = useDispatch();
+    const pharmacy = useSelector(state => state.pharmacy);
 
-export default createAppContainer(createSwitchNavigator({
-    AuthLoading: AuthLoading,
-    Main: MainTabNavigator,
-    Auth: AuthStack,
-  },
-  {
-    initialRouteName: 'AuthLoading'
-  }
-));
+    useEffect(() => {
+        const getToken = async () => dispatch(setToken(await AsyncStorage.getItem('token')));
+        getToken();
+    }, [])
+
+    return (
+        <NavigationContainer>
+            {(pharmacy.token == null)
+                ? <LoginStackScreen />
+                : <AppTabScreens />
+            }
+        </NavigationContainer>
+    )
+};
+
+export default appNavigator;
