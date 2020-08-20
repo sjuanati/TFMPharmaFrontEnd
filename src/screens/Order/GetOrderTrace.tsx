@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
     Text,
@@ -7,17 +8,35 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+import { useTypedSelector, RootState } from '../../store/reducers/reducer';
 import { httpUrl } from '../../../urlServer';
 import { ListItem } from 'react-native-elements';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { OrderStackParamList } from '../../navigation/StackNavigator';
 
+type Props = {
+    route: RouteProp<OrderStackParamList, 'OrderTrace'>,
+    navigation: StackNavigationProp<OrderStackParamList, 'OrderTrace'>
+};
+type Checksum = 'OK' | 'NOK' | 'PENDING';
+type OrderBase = RootState['order'];
 
-const getOrderTrace = (props) => {
+interface Order extends OrderBase {
+    trace_id: string,
+    order_date: number,
+    checksum: Checksum,
+    error: string,
+    db_hash: string,
+    order_status: number
+}
+
+const GetOrderTrace = (props: Props) => {
 
     //const order_id = props.navigation.getParam('order_id');
     const { order_id } = props.route.params;
     //const user = useSelector(state => state.user);
-    const pharmacy = useSelector(state => state.pharmacy);
+    const pharmacy = useTypedSelector(state => state.pharmacy);
     const [order, setOrder] = useState([]);
 
     useEffect(() => {
@@ -27,57 +46,58 @@ const getOrderTrace = (props) => {
     const fetchOrderTrace = async () => {
         await axios.get(`${httpUrl}/trace/order`, {
             params: { order_id: order_id },
-            headers: { authorization: pharmacy.token }
+            headers: { authorization: pharmacy.token },
         }).then(res => {
             setOrder(res.data);
         }).catch(err => {
             console.log('Error in GetOrderTrace.js -> getOrderTrace() -> fetchOrderTrace(): ', err);
         });
-    }
+    };
 
-    const showTrimmedHash = (hash) => {
+    const showTrimmedHash = (hash: string) => {
         return hash.slice(0, 25) + '...' + hash.slice(-5);
-    }
+    };
 
-    const showChecksum = (checksum, error) => {
+    const showChecksum = (checksum: Checksum, error: string) => {
         switch (checksum) {
             case 'OK':
-                return <Text style={styles.textValidated}>Validated </Text>
+                return <Text style={styles.textValidated}>Validated </Text>;
             case 'NOK':
-                return <Text style={styles.textNotValidated}>Not Validated  <Text style={styles.unbold}>({error})</Text></Text>
+                return <Text style={styles.textNotValidated}>Not Validated  <Text style={styles.unbold}>({error})</Text></Text>;
             case 'PENDING':
-                return <Text style={styles.textPending}>Pending </Text>
+                return <Text style={styles.textPending}>Pending </Text>;
             default:
-                return <Text style={styles.textNotValidated}>Unknown </Text>
+                return <Text style={styles.textNotValidated}>Unknown </Text>;
         }
-    }
+    };
 
     // Render list of Order items
-    const renderOrderItems = (values) => (
+    const renderOrderItems = ({ item }: { item: Order }) => (
         <ListItem
-            title={<Text style={styles.textHeader}>{values.item.status_desc}</Text>}
+            title={<Text style={styles.textHeader}>{item.status_desc}</Text>}
             subtitle={
                 <View>
                     <View style={styles.rowContainer}>
                         <Text style={styles.rowHeader}> Date: </Text>
-                        <Text style={styles.rowValue}>{moment.unix(values.item.order_date).format('DD-MM-YYYY H:mm:ss')} </Text>
+                        <Text style={styles.rowValue}>{moment.unix(item.order_date).format('DD-MM-YYYY H:mm:ss')} </Text>
                     </View>
                     <View style={styles.rowContainer}>
                         <Text style={styles.rowHeader}> Checksum: </Text>
-                        <Text style={styles.rowValue}>{showChecksum(values.item.checksum, values.item.error)} </Text>
+                        <Text style={styles.rowValue}>{showChecksum(item.checksum, item.error)} </Text>
                     </View>
                     <View style={styles.rowContainer}>
                         <Text style={styles.rowHeader}> Hash: </Text>
-                        <Text style={styles.rowValue}>{showTrimmedHash(values.item.db_hash)} </Text>
+                        <Text style={styles.rowValue}>{showTrimmedHash(item.db_hash)} </Text>
                     </View>
                     <View style={styles.rowContainer}>
                         <Text style={styles.rowHeader}> Signed by: </Text>
                         <Text style={styles.rowValue}>
-                            {(values.item.order_status < 2) ? values.item.name : 'Pharmacy ' + values.item.pharmacy_desc}
+                            {(item.order_status < 2) ? item.name : 'Pharmacy ' + item.pharmacy_desc}
                         </Text>
                     </View>
                 </View>}
             bottomDivider
+            children
         />
     );
 
@@ -85,24 +105,20 @@ const getOrderTrace = (props) => {
     const renderOrderTrace = () => (
         <FlatList
             data={order}
-            keyExtractor={(item) => item.trace_id.toString()}
-            renderItem={renderOrderItems}
-        />
-    )
+            keyExtractor={(item: Order) => String(item.trace_id)}
+            renderItem={renderOrderItems} />
+    );
 
     return (
         <View style={styles.container}>
             {renderOrderTrace()}
         </View>
-    )
-}
-
-export default getOrderTrace;
-
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
     },
     rowContainer: {
         flexDirection: 'row',
@@ -113,14 +129,8 @@ const styles = StyleSheet.create({
         width: 83,
     },
     rowValue: {
-        width: 300
+        width: 300,
     },
-    // box: {
-    //     width: box_width,
-    //     height: box_width,
-    //     borderRadius: box_width / 2,
-    //     backgroundColor: 'green',
-    // },
     textHeader: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -128,17 +138,19 @@ const styles = StyleSheet.create({
     },
     textValidated: {
         color: 'green',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     textNotValidated: {
         color: 'red',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     textPending: {
         color: 'orange',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     unbold: {
-        fontWeight: 'normal'
-    }
+        fontWeight: 'normal',
+    },
 });
+
+export default GetOrderTrace;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
     Badge,
@@ -6,14 +7,13 @@ import {
     Item,
     Text,
     Container,
-    Toast,
     ListItem,
     Right,
     Body,
     Left,
     Icon,
-    Input
-} from "native-base";
+    Input,
+} from 'native-base';
 import {
     View,
     FlatList,
@@ -22,28 +22,50 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
+import showToast from '../../shared/Toast';
 import { httpUrl } from '../../../urlServer';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useTypedSelector, RootState } from '../../store/reducers/reducer';
 import { setModifiedOrder, setOrdersPage } from '../../store/actions/order';
 import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { OrderStackParamList } from '../../navigation/StackNavigator';
 
+type Props = {
+    route: RouteProp<OrderStackParamList, 'Orders'>,
+    navigation: StackNavigationProp<OrderStackParamList, 'Orders'>
+};
+type OrderBase = RootState['order'];
 
-const getOrders = (props) => {
+interface Order extends OrderBase {
+    header: boolean
+}
+interface Filters {
+    grey: boolean,
+    red: boolean,
+    yellow: boolean,
+    green: boolean
+}
+
+const GetOrders = (props: Props) => {
 
     const dispatch = useDispatch();
-    const modifiedOrder = useSelector(state => state.order.modifiedOrder);
-    const ordersPage = useSelector(state => state.order.ordersPage);
-    const pharmacy = useSelector(state => state.pharmacy);
+    const modifiedOrder = useTypedSelector(state => state.order.modifiedOrder);
+    const ordersPage = useTypedSelector(state => state.order.ordersPage);
+    const pharmacy = useTypedSelector(state => state.pharmacy);
     const [loading, setLoading] = useState(true);
-    const [orders, setOrders] = useState([]);
-    const [originalOrders, setOriginalOrders] = useState([]);
+    //const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState<Order[]>();
+    //const [originalOrders, setOriginalOrders] = useState([]);
+    const [originalOrders, setOriginalOrders] = useState<Order[]>();
     const [isActive, setIsActive] = useState(true);
     const [searchText, setSearchText] = useState('');
     const [filters, setFilters] = useState({
         grey: true,
         red: true,
         yellow: true,
-        green: true
+        green: true,
     });
 
     useEffect(() => {
@@ -73,7 +95,7 @@ const getOrders = (props) => {
     }, [modifiedOrder]);
 
     useEffect(() => {
-        let interval = null;
+        let interval : ReturnType<typeof setInterval>;
         if (!isActive) {
             clearInterval(interval);
         } else {
@@ -83,6 +105,7 @@ const getOrders = (props) => {
                         console.warn(JSON.stringify(error));
                     });
             }, 60000);
+            console.log('interval:', interval);
         }
         return () => clearInterval(interval);
     }, [isActive]);
@@ -95,21 +118,13 @@ const getOrders = (props) => {
         }
     };
 
-    const showToast = (text) => {
-        Toast.show({
-            text: text,
-            position: "bottom",
-            buttonText: "Okay"
-        });
-    };
-
-    const findOrder = (text, arrayOrders, modFilters) => {
-        return new Promise(async (resolve, reject) => {
+    const findOrder = (text: string, arrayOrders: Order[], modFilters: Filters) => {
+        return new Promise<Order[]>(async (resolve) => {
             if (text !== '') {
                 let ordersToFilter = await applyFilter(modFilters, arrayOrders);
                 let res = ordersToFilter.filter((ordr) => {
                     let condition = new RegExp(text);
-                    return condition.test(ordr.name)
+                    return condition.test(ordr.name);
                 });
                 let initialOrder = { order_id: 0, header: true };
                 res.unshift(initialOrder);
@@ -123,62 +138,28 @@ const getOrders = (props) => {
         });
     };
 
-    const applyFilter = async (filters, arrayOrders) => {
-        return new Promise((resolve, reject) => {
+    const applyFilter = async (filter: Filters, arrayOrders: Order[]) => {
+        return new Promise<Order[]>((resolve) => {
 
-            // let finalArray = [];
-            // if (filters.grey && filters.red && filters.yellow && filters.green) {
-            //     finalArray = arrayOrders;
-            // } else if (!filters.grey && filters.red && filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 2 && ordr.status !== 4);
-            // } else if (filters.grey && !filters.red && filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 6);
-            // } else if (!filters.grey && !filters.red && filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 2 && ordr.status !== 4 && ordr.status !== 6);
-            // } else if (filters.grey && filters.red && !filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 1 && ordr.status !== 3);
-            // } else if (!filters.grey && filters.red && !filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 1 && ordr.status !== 2 && ordr.status !== 3 && ordr.status !== 4);
-            // } else if (filters.grey && !filters.red && !filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 1 && ordr.status !== 3 && ordr.status !== 6);
-            // } else if (!filters.grey && !filters.red && !filters.yellow && filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status === 5);
-            // } else if (filters.grey && filters.red && filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 6);
-            // } else if (!filters.grey && filters.red && filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 2 && ordr.status !== 4 && ordr.status !== 5);
-            // } else if (filters.grey && !filters.red && filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 5 && ordr.status !== 6);
-            // } else if (!filters.grey && !filters.red && filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status === 1 || ordr.status === 3);
-            // } else if (filters.grey && filters.red && !filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status !== 1 && ordr.status !== 3 && ordr.status !== 5);
-            // } else if (!filters.grey && filters.red && !filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status === 6);
-            // } else if (filters.grey && !filters.red && !filters.yellow && !filters.green) {
-            //     finalArray = arrayOrders.filter(ordr => ordr.status === 2 || ordr.status === 4);
-            // } else if (!filters.grey && !filters.red && !filters.yellow && !filters.green) {
-            //     finalArray = [];
-            // }
-
-            let finalArray = [];
-            if (filters.grey && filters.red && filters.yellow && filters.green) {
+            let finalArray: Order[] = [];
+            if (filter.grey && filter.red && filter.yellow && filter.green) {
                 finalArray = arrayOrders;
-            } else if (!filters.grey && !filters.red && filters.yellow && !filters.green) {
-                finalArray = arrayOrders.filter(ordr => ordr.status === 2 || ordr.status === 4);
-            } else if (!filters.grey && !filters.red && !filters.yellow && filters.green) {
-                finalArray = arrayOrders.filter(ordr => ordr.status === 5);
-            } else if (!filters.grey && filters.red && !filters.yellow && !filters.green) {
-                finalArray = arrayOrders.filter(ordr => ordr.status === 6);
-            } else if (filters.grey && !filters.red && !filters.yellow && !filters.green) {
-                finalArray = arrayOrders.filter(ordr => ordr.status === 1 || ordr.status === 3);
-            } else if (!filters.grey && !filters.red && !filters.yellow && !filters.green) {
+            } else if (!filter.grey && !filter.red && filter.yellow && !filter.green) {
+                finalArray = arrayOrders.filter((ordr: Order) => ordr.status === 2 || ordr.status === 4);
+            } else if (!filter.grey && !filter.red && !filter.yellow && filter.green) {
+                finalArray = arrayOrders.filter((ordr: Order) => ordr.status === 5);
+            } else if (!filter.grey && filter.red && !filter.yellow && !filter.green) {
+                finalArray = arrayOrders.filter((ordr: Order) => ordr.status === 6);
+            } else if (filter.grey && !filter.red && !filter.yellow && !filter.green) {
+                finalArray = arrayOrders.filter((ordr: Order) => ordr.status === 1 || ordr.status === 3);
+            } else if (!filter.grey && !filter.red && !filter.yellow && !filter.green) {
                 finalArray = [];
             }
 
-            let initialItem = finalArray.find((item) => item.order_id === 0);
-            if (!initialItem)
+            let initialItem = finalArray.find((item: Order) => item.order_id === 0);
+            if (!initialItem) {
                 finalArray.unshift({ order_id: 0, header: true });
+            }
             resolve(finalArray);
         });
     };
@@ -187,10 +168,8 @@ const getOrders = (props) => {
         return new Promise((resolve) => {
 
             axios.get(`${httpUrl}/order/get/pharmacy`, {
-                params: {
-                    pharmacy_id: pharmacy.pharmacy_id,
-                },
-                headers: { authorization: pharmacy.token }
+                params: { pharmacy_id: pharmacy.pharmacy_id },
+                headers: { authorization: pharmacy.token },
             }).then(async res => {
                 if (res.status === 200 || res.status === 304) {
                     let ordrs = res.data;
@@ -200,33 +179,34 @@ const getOrders = (props) => {
                     setLoading(false);
                     resolve();
                 } else {
-                    showToast("There was an error");
+                    showToast('There was an error', 'warning');
                 }
             }).catch(async err => {
-                handleAxiosErrors(props, err);
+                handleAxiosErrors(err);
                 setLoading(false);
             });
         });
     };
 
-    const openOrder = async ({ item }) => {
+    const openOrder = async (item: Order) => {
         if (item) {
             dispatch(setOrdersPage(false));
             props.navigation.navigate('OrderDetail', {
-                order_id: item.order_id
+                order_id: item.order_id,
             });
         } else {
-            console.log('Error opening Order')
+            console.log('Error opening Order');
         }
     };
 
-    const renderItem = (item) => {
+    const renderItem = ({item}: {item: Order}) => {
         return (
             <View>
-                {(item.item.header) ?
-                    <ListItem itemDivider
-                        style={{ marginLeft: 0 }}
-                        id={item.item.order_id.toString()}>
+                {(item.header) ?
+                    <ListItem
+                        itemDivider
+                        //style={{ marginLeft: 0 }}
+                        id={item.order_id.toString()}>
                         <Left style={{ flex: 0.6 }}>
                             <Text>Order</Text>
                         </Left>
@@ -235,55 +215,57 @@ const getOrders = (props) => {
                         </Body>
                     </ListItem>
                     :
-                    <ListItem style={{ marginLeft: 0 }}
-                        id={item.item.order_id.toString()}>
+                    <ListItem
+                        style={{ marginLeft: 0 }}
+                        id={item.order_id.toString()}>
                         <Body style={{ flex: 0.6, paddingLeft: 5 }}>
                             <TouchableOpacity onPress={() => openOrder(item)}>
-                                <Text>#{item.item.order_id_app} - {item.item.name}</Text>
-                                {(item.item.total_price)
+                                <Text>#{item.order_id_app} - {item.name}</Text>
+                                {(item.total_price)
                                     ? <Text note numberOfLines={1}>
-                                        {item.item.total_price} € - <RenderDate date={new Date(item.item.creation_date)} />
+                                        {item.total_price} € - <RenderDate date={new Date(item.creation_date)} />
                                     </Text>
-                                    : <RenderDate date={new Date(item.item.creation_date)} />
+                                    : <RenderDate date={new Date(item.creation_date)} />
                                 }
                             </TouchableOpacity>
                         </Body>
                         <Body style={{ flex: 0.4 }}>
                             <TouchableOpacity onPress={() => openOrder(item)}>
-                                <StatusOrder status={item.item.status} />
+                                <StatusOrder status={item.status} />
                             </TouchableOpacity>
                         </Body>
                     </ListItem>
                 }
             </View>
-        )
+        );
     };
 
-    const RenderDate = ({ date }) => {
+    const RenderDate = ({ date }: { date: Date }) => {
         return (
             <Text note>
-                {("0" + date.getHours()).slice(-2)}:{("0" + date.getMinutes()).slice(-2)} {("0" + date.getDate()).slice(-2)}/{("0" + (date.getMonth() + 1).toString()).slice(-2)}/{(date.getFullYear())}
+                {('0' + date.getHours()).slice(-2)}:{('0' + date.getMinutes()).slice(-2)} 
+                {('0' + date.getDate()).slice(-2)}/{('0' + (date.getMonth() + 1).toString()).slice(-2)}/{(date.getFullYear())}
             </Text>
-        )
+        );
     };
 
-    const StatusOrder = ({ status }) => {
+    const StatusOrder = ({ status }: { status: number }) => {
         if (status === 0) {
-            return (<Text style={styles.statusGrey}>DRAFT</Text>)
+            return (<Text style={styles.statusGrey}>DRAFT</Text>);
         } else if (status === 1) {
-            return (<Text style={styles.statusGrey}>REQUESTED</Text>)
+            return (<Text style={styles.statusGrey}>REQUESTED</Text>);
         } else if (status === 2) {
-            return (<Text style={styles.statusYellow}>CONFIRMED</Text>)
+            return (<Text style={styles.statusYellow}>CONFIRMED</Text>);
         } else if (status === 3) {
-            return (<Text style={styles.statusGrey}>PICK UP READY</Text>)
+            return (<Text style={styles.statusGrey}>PICK UP READY</Text>);
         } else if (status === 4) {
-            return (<Text style={styles.statusYellow}>IN TRANSIT</Text>)
+            return (<Text style={styles.statusYellow}>IN TRANSIT</Text>);
         } else if (status === 5) {
-            return (<Text style={styles.statusGreen}>DELIVERED</Text>)
+            return (<Text style={styles.statusGreen}>DELIVERED</Text>);
         } else if (status === 6) {
-            return (<Text style={styles.statusRed}>CANCELLED</Text>)
+            return (<Text style={styles.statusRed}>CANCELLED</Text>);
         } else {
-            return (<Text />)
+            return (<Text />);
         }
     };
 
@@ -312,13 +294,12 @@ const getOrders = (props) => {
                             refreshControl={
                                 <RefreshControl
                                     refreshing={loading}
-                                    onRefresh={onRefresh}
-                                />}>
-                        </FlatList>
+                                    onRefresh={onRefresh} />
+                            } />
                     </View>
                 }
             </Container>
-        )
+        );
     };
 
     return (
@@ -340,7 +321,7 @@ const getOrders = (props) => {
                             value={searchText}
                             onChangeText={(text) => {
                                 setSearchText(text);
-                                findOrder(text, originalOrders, filters)
+                                findOrder(text, originalOrders, filters);
                             }} />
                     </Item>
                 </Item>
@@ -353,8 +334,8 @@ const getOrders = (props) => {
                                 modFilters.green = false;
                                 modFilters.red = false;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             } else {
                                 let modFilters = { ...filters };
                                 modFilters.yellow = true;
@@ -362,23 +343,23 @@ const getOrders = (props) => {
                                 modFilters.red = true;
                                 modFilters.grey = true;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             }
                         }}>
                             <Badge style={{ backgroundColor: 'grey', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, marginHorizontal: 7, marginTop: 15 }}>
-                                <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                         : <TouchableOpacity onPress={async () => {
                             let modFilters = { ...filters };
                             modFilters.grey = true;
                             setFilters(modFilters);
-                            let orders = await findOrder(searchText, originalOrders, modFilters);
-                            setOrders(orders);
+                            const ord = await findOrder(searchText, originalOrders, modFilters);
+                            setOrders(ord);
                         }}>
                             <Badge style={{ backgroundColor: 'grey', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, marginHorizontal: 7, marginTop: 15, opacity: 0.5 }}>
-                                <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                 }
@@ -391,8 +372,8 @@ const getOrders = (props) => {
                                 modFilters.green = false;
                                 modFilters.red = false;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             } else {
                                 let modFilters = { ...filters };
                                 modFilters.yellow = true;
@@ -400,12 +381,12 @@ const getOrders = (props) => {
                                 modFilters.red = true;
                                 modFilters.grey = true;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             }
                         }}>
                             <Badge warning style={styles.filterBadge}>
-                                <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                         : <TouchableOpacity onPress={async () => {
@@ -415,11 +396,11 @@ const getOrders = (props) => {
                             modFilters.red = false;
                             modFilters.grey = false;
                             setFilters(modFilters);
-                            let orders = await findOrder(searchText, originalOrders, modFilters);
-                            setOrders(orders);
+                            const ord = await findOrder(searchText, originalOrders, modFilters);
+                            setOrders(ord);
                         }}>
                             <Badge warning style={styles.filterBadgeNonSelected}>
-                                <Icon name="ellipsis1" type="AntDesign" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                 }
@@ -432,8 +413,8 @@ const getOrders = (props) => {
                                 modFilters.yellow = false;
                                 modFilters.red = false;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             } else {
                                 let modFilters = { ...filters };
                                 modFilters.yellow = true;
@@ -441,12 +422,12 @@ const getOrders = (props) => {
                                 modFilters.red = true;
                                 modFilters.grey = true;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             }
                         }}>
                             <Badge success style={styles.filterBadge}>
-                                <Icon name="checkmark" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="checkmark" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                         : <TouchableOpacity onPress={async () => {
@@ -456,11 +437,11 @@ const getOrders = (props) => {
                             modFilters.red = false;
                             modFilters.grey = false;
                             setFilters(modFilters);
-                            let orders = await findOrder(searchText, originalOrders, modFilters);
-                            setOrders(orders);
+                            const ord = await findOrder(searchText, originalOrders, modFilters);
+                            setOrders(ord);
                         }}>
                             <Badge success style={styles.filterBadgeNonSelected}>
-                                <Icon name="checkmark" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="checkmark" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                 }
@@ -473,8 +454,8 @@ const getOrders = (props) => {
                                 modFilters.yellow = false;
                                 modFilters.green = false;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             } else {
                                 let modFilters = { ...filters };
                                 modFilters.yellow = true;
@@ -482,12 +463,12 @@ const getOrders = (props) => {
                                 modFilters.red = true;
                                 modFilters.grey = true;
                                 setFilters(modFilters);
-                                let orders = await findOrder(searchText, originalOrders, modFilters);
-                                setOrders(orders);
+                                const ord = await findOrder(searchText, originalOrders, modFilters);
+                                setOrders(ord);
                             }
                         }}>
                             <Badge danger style={styles.filterBadge}>
-                                <Icon name="close" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="close" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                         : <TouchableOpacity onPress={async () => {
@@ -497,21 +478,21 @@ const getOrders = (props) => {
                             modFilters.red = true;
                             modFilters.grey = false;
                             setFilters(modFilters);
-                            let orders = await findOrder(searchText, originalOrders, modFilters);
-                            setOrders(orders);
+                            let ord = await findOrder(searchText, originalOrders, modFilters);
+                            setOrders(ord);
                         }}>
                             <Badge danger style={styles.filterBadgeNonSelected}>
-                                <Icon name="close" style={{ fontSize: 14, color: "#fff" }} />
+                                <Icon name="close" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
                 }
             </Header>
             {(loading)
-                ? <Spinner color='#F4B13E' />
+                ? <Spinner color="#F4B13E" />
                 : <RenderOrders />
             }
         </Container>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
@@ -521,22 +502,22 @@ const styles = StyleSheet.create({
     },
     right: {
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     left: {
         flex: 1,
         justifyContent: 'center',
     },
     searchIcon: {
-        fontSize: 25
+        fontSize: 25,
     },
     searchButton: {
-        backgroundColor: 'white'
+        backgroundColor: 'white',
     },
     header: {
         marginStart: 5,
         backgroundColor: 'white',
-        borderWidth: 0
+        borderWidth: 0,
     },
     headerTitle: {
         marginStart: 5,
@@ -545,23 +526,23 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         // height: 35,
         height: 80,
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
     },
     titlePage: {
         fontSize: 30,
         fontWeight: 'bold',
-        textAlign: 'left'
+        textAlign: 'left',
     },
     viewContent: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     noItems: {
         marginTop: 20,
         color: 'gray',
         fontSize: 18,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     filterBadge: {
         justifyContent: 'center',
@@ -569,7 +550,7 @@ const styles = StyleSheet.create({
         width: 25,
         height: 25,
         marginHorizontal: 7,
-        marginTop: 15
+        marginTop: 15,
     },
     filterBadgeNonSelected: {
         justifyContent: 'center',
@@ -578,7 +559,7 @@ const styles = StyleSheet.create({
         height: 25,
         marginHorizontal: 7,
         marginTop: 15,
-        opacity: 0.3
+        opacity: 0.3,
     },
     statusGrey: {
         color: 'grey',
@@ -596,6 +577,10 @@ const styles = StyleSheet.create({
         color: '#d9534f',
         fontSize: 13,
     },
+    badge: {
+        fontSize: 14,
+        color: '#fff',
+    },
 });
 
-export default getOrders;
+export default GetOrders;

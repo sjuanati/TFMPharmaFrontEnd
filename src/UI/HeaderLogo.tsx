@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native'
+import { View, StyleSheet, Image } from 'react-native';
 const drmaxLogo = require('../assets/images/global/DrMax.png');
 
-const headerLogo = (props) => {
+const HeaderLogo = () => {
 
     return (
         <View style={styles.header}>
@@ -10,7 +10,7 @@ const headerLogo = (props) => {
                 style={styles.logo}
                 source={drmaxLogo} />
         </View>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default headerLogo;
+export default HeaderLogo;

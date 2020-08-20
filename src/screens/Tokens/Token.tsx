@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import {
     View,
@@ -10,15 +11,23 @@ import axios from 'axios';
 import Keypad from '../../UI/Keypad';
 import globalStyles from '../../UI/Style';
 import Cons from '../../shared/Constants';
-import { useSelector } from 'react-redux';
+import { useTypedSelector } from '../../store/reducers/reducer';
 import { httpUrl } from '../../../urlServer';
 import { ScrollView } from 'react-native-gesture-handler';
 import PaymentVISA from '../../UI/PaymentVISA';
 import ActivityIndicator from '../../UI/ActivityIndicator';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { TokenStackParamList } from '../../navigation/StackNavigator';
 
-const token = (props) => {
+type Props = {
+    route: RouteProp<TokenStackParamList, 'Tokens'>,
+    navigation: StackNavigationProp<TokenStackParamList, 'Tokens'>
+};
 
-    const pharmacy = useSelector(state => state.pharmacy);
+const Token = (props: Props) => {
+
+    const pharmacy = useTypedSelector(state => state.pharmacy);
     const [balance, setBalance] = useState(-1);
     const [amount, setAmount] = useState('0');
     const [isLoading, setIsLoading] = useState(false);
@@ -38,25 +47,25 @@ const token = (props) => {
     const fetchTokenBalance = async () => {
         await axios.get(`${httpUrl}/token/get/balance`, {
             params: { recipient: pharmacy.eth_address },
-            headers: { authorization: pharmacy.token }
+            headers: { authorization: pharmacy.token },
         }).then(res => {
             // Convert string into Float of 2 decimals
-            const amount = Math.round(parseFloat(res.data) * 100) / 100;
-            setBalance(amount);
+            const amnt = Math.round(parseFloat(res.data) * 100) / 100;
+            setBalance(amnt);
         }).catch(err => {
             console.log('Error in Token.js -> fetchTokenBalance(): ', err);
             setBalance(-2);
         });
-    }
+    };
 
-    const fetchBuyTokens = async (amount) => {
+    const fetchBuyTokens = async (parsedAmount: number) => {
         setIsLoading(true);
         await axios.get(`${httpUrl}/token/buyTokens`, {
             params: {
                 recipient: pharmacy.eth_address,
-                amount: amount,
+                amount: parsedAmount,
             },
-            headers: { authorization: pharmacy.token }
+            headers: { authorization: pharmacy.token },
         }).then(() => {
             fetchTokenBalance();
             setAmount('0');
@@ -64,57 +73,65 @@ const token = (props) => {
         }).catch(err => {
             console.log('Error in Token.js -> buyTokens(): ', err);
         }).then(() => {
-            setIsLoading(false)
+            setIsLoading(false);
         });
-    }
+    };
 
     /**
-     * @dev Add number to the total amount. 
+     * @dev Add number to the total amount.
      * - Only one comma for decimals is allowed
      * - Only two decimals are allowed
      * - Maximum length for the total amount is 9 digits
-     * @param num New number to be added to the right of the total amount 
+     * @param num New number to be added to the right of the total amount
      */
-    const addNumberHandler = (num) => {
+    const addNumberHandler = (num: string) => {
         if ((!amount.includes(',') || (amount.includes(',') && num !== ',')) && amount.length < 9) {
-            if (amount === '0') setAmount(num);
-            else if (amount.charAt(amount.length - 3) !== ',') setAmount(amount + num);
+            if (amount === '0') {
+                setAmount(num);
+            } else if (amount.charAt(amount.length - 3) !== ',') {
+                setAmount(amount + num);
+            }
         }
-    }
+    };
 
     /**
-     * @dev Remove number from the total amount. 
+     * @dev Remove number from the total amount.
      * - If a number has a preceding comma, it deletes number & comma
      */
     const removeNumberHandler = () => {
         if (amount.length > 1) {
-            if (amount.charAt(amount.length - 2) === ',') setAmount(amount.slice(0, -2));
-            else setAmount(amount.slice(0, -1));
-        } else if (amount.length === 1) setAmount('0');
-    }
+            if (amount.charAt(amount.length - 2) === ',') {
+                setAmount(amount.slice(0, -2));
+            } else {
+                setAmount(amount.slice(0, -1));
+            }
+        } else if (amount.length === 1) {
+            setAmount('0');
+        }
+    };
 
     const handlePurchase = () => {
         try {
             Alert.alert(
-                "Please confirm the purchase",
-                null,
+                'Please confirm the purchase',
+                '',
                 [{
-                    text: "Cancel",
-                    style: "cancel"
+                    text: 'Cancel',
+                    style: 'cancel',
                 },
                 {
-                    text: "OK", onPress: () => {
+                    text: 'OK', onPress: () => {
                         // Convert amount from String into 2-decimal Integer
                         let parsedAmount = Math.round(parseFloat(amount.replace(',', '.')) * 100) / 100;
                         fetchBuyTokens(parsedAmount);
-                    }
+                    },
                 }],
                 { cancelable: false }
             );
         } catch (err) {
             console.log('Error on Token.js -> handlePurchase(): ', err);
         }
-    }
+    };
 
     const renderPurchaseButton = () => (
         <View style={styles.buttonContainer}>
@@ -143,19 +160,19 @@ const token = (props) => {
                     </Text>
                 </View>
                 <View style={styles.balanceContainer}>
-                    <Text style={styles.amountContainer}>{amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €</Text>
+                    <Text style={styles.amountContainer}>{amount.replace(/\B(?=(\d{3})+(?!\d))/g, '.')} €</Text>
                 </View>
                 <Keypad
                     onAddNumber={addNumberHandler}
                     onRemoveNumber={removeNumberHandler} />
                 <PaymentVISA />
-                <ActivityIndicator 
+                <ActivityIndicator
                     isLoading={isLoading} />
             </ScrollView>
             {renderPurchaseButton()}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -194,4 +211,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default token;
+export default Token;

@@ -5,7 +5,7 @@ import {
     ActivityIndicator,
 } from 'react-native';
 
-const activityIndicator = ({ isLoading }) => {
+const activityIndicator = ({ isLoading }: {isLoading: boolean}) => {
     return (
         <View>
             <ActivityIndicator
@@ -14,8 +14,8 @@ const activityIndicator = ({ isLoading }) => {
                 style={styles.loading}
                 animating={(isLoading) ? true : false} />
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     loading: {
@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         alignItems: 'center',
-        justifyContent: 'center'
-    }
+        justifyContent: 'center',
+    },
 });
 
 export default activityIndicator;

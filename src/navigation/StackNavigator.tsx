@@ -18,7 +18,7 @@ const HomeStack = createStackNavigator();
 
 const HomeStackScreen = () => (
     <HomeStack.Navigator
-        screenOptions={(props) => ({
+        screenOptions={() => ({
             headerTitle: () => <HeaderLogo />,
             headerBackImage: () => <BackIcon />,
             headerBackTitleVisible: false,
@@ -30,11 +30,27 @@ const HomeStackScreen = () => (
     </HomeStack.Navigator>
 );
 
-const OrderStack = createStackNavigator();
+interface Product {
+    product_desc: string,
+    dose_qty: string,
+    dose_form: string,
+    prescription: boolean,
+    price: number,
+    leaflet_url: string,
+}
+
+export type OrderStackParamList = {
+    Orders: undefined;
+    OrderDetail: { order_id: string };
+    OrderTrace: { order_id: string };
+    ProductDetail: Product;
+};
+
+const OrderStack = createStackNavigator<OrderStackParamList>();
 
 const OrderStackScreen = () => (
     <OrderStack.Navigator
-        screenOptions={(props) => ({
+        screenOptions={() => ({
             headerTitle: () => <HeaderLogo />,
             headerBackImage: () => <BackIcon />,
             headerBackTitleVisible: false,
@@ -58,11 +74,15 @@ const OrderStackScreen = () => (
     </OrderStack.Navigator>
 );
 
-const TokenStack = createStackNavigator();
+export type TokenStackParamList = {
+    Tokens: undefined;
+};
+
+const TokenStack = createStackNavigator<TokenStackParamList>();
 
 const TokenStackScreen = () => (
     <TokenStack.Navigator
-        screenOptions={(props) => ({
+        screenOptions={() => ({
             headerTitle: () => <HeaderLogo />,
             headerBackImage: () => <BackIcon />,
             headerBackTitleVisible: false,
@@ -78,7 +98,7 @@ const ProfileStack = createStackNavigator();
 
 const ProfileStackScreen = () => (
     <ProfileStack.Navigator
-        screenOptions={(props) => ({
+        screenOptions={() => ({
             headerTitle: () => <HeaderLogo />,
             headerBackImage: () => <BackIcon />,
             headerBackTitleVisible: false,
@@ -90,7 +110,12 @@ const ProfileStackScreen = () => (
     </ProfileStack.Navigator>
 );
 
-const LoginStack = createStackNavigator();
+export type LoginStackParamList = {
+    SignIn: undefined;
+    SignUp: undefined;
+};
+
+const LoginStack = createStackNavigator<LoginStackParamList>();
 
 const LoginStackScreen = () => (
     <LoginStack.Navigator>
@@ -110,5 +135,5 @@ export {
     OrderStackScreen,
     TokenStackScreen,
     ProfileStackScreen,
-    LoginStackScreen
-}
+    LoginStackScreen,
+};

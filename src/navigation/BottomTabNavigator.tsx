@@ -91,8 +91,8 @@ const AppTabScreens = () => (
 const styles = StyleSheet.create({
     iconHome: {
         width: 30,
-        height: 30
-    }
+        height: 30,
+    },
 });
 
 export { AppTabScreens };

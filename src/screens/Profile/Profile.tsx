@@ -9,33 +9,30 @@ import {
     TextInput,
     ScrollView,
     StyleSheet,
-    ImageBackground,
     TouchableOpacity,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
 import QRCode from 'react-native-qrcode-svg';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
+import { useTypedSelector } from '../../store/reducers/reducer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { httpUrl } from '../../../urlServer';
-import Cons from '../../shared/Constants'
+import Cons from '../../shared/Constants';
 import globalStyles from '../../UI/Style';
 import ActivityIndicator from '../../UI/ActivityIndicator';
 import { updateData, setToken } from '../../store/actions/pharmacy';
-import logger from '../../shared/logRecorder';
 
-//import imageProfile from '../../assets/images/profile/rod-of-asclepius-100.png';
-
-const profile = (props) => {
+const Profile = () => {
 
     const dispatch = useDispatch();
-    const pharmacy = useSelector(state => state.pharmacy);
+    const pharmacy = useTypedSelector(state => state.pharmacy);
     const [name, setName] = useState(pharmacy.pharmacy_desc);
-    const [phone, setPhone] = useState(pharmacy.phone_number);
+    const [phone, setPhone] = useState(pharmacy.phone);
     const [email, setEmail] = useState(pharmacy.email);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoding] = useState(false);
@@ -48,27 +45,26 @@ const profile = (props) => {
                 {
                     text: 'OK', onPress: async () => {
                         await AsyncStorage.clear();
-                        //props.navigation.navigate('Auth');
                         dispatch(setToken(null));
-                    }
+                    },
                 },
             ],
             { cancelable: false }
-        )
+        );
     };
 
     const toggleIsModalOpen = () => {
         const prev = isModalOpen;
         setIsModalOpen(!prev);
-    }
+    };
 
     // Close Modal and undo field updates
     const closeProfile = () => {
         toggleIsModalOpen();
         setName(pharmacy.pharmacy_desc);
-        setPhone(pharmacy.phone_number);
+        setPhone(pharmacy.phone);
         setEmail(pharmacy.email);
-    }
+    };
 
     const checkTextInput = async () => {
         return new Promise((resolve) => {
@@ -83,18 +79,18 @@ const profile = (props) => {
 
                     // Check if email structure is correct
                     if (!emailPattern.test(emailChecked)) {
-                        Alert.alert('Por favor, introduzca un correo electrónico válido');
+                        Alert.alert('Please insert a valid email address');
                         resolve(false);
                     }
 
                     // Check if email already exists in DB
                     axios.get(`${httpUrl}/pharmacy/check/email`, {
                         params: { user_id: pharmacy.pharmacy_id, email: emailChecked },
-                        headers: { authorization: pharmacy.token }
+                        headers: { authorization: pharmacy.token },
                     })
                         .then(response => {
                             if ((response.data.length > 0) && (response.data[0].count > 0)) {
-                                Alert.alert('Ya existe una cuenta con ese correo electrónico');
+                                Alert.alert('An account already exists with this email');
                                 resolve(false);
                             } else {
                                 resolve(true);
@@ -102,15 +98,12 @@ const profile = (props) => {
                         })
                         .catch(err => {
                             console.log('Error at Profile.js -> checkTextInput() :', err);
-                            if (err.response && err.response.status === 404) {
-                                logger('ERR', 'FRONT-PHARMA', `Profile.js -> checkTextInput() : ${err}`, pharmacy, '');
-                            }
                             resolve(false);
-                        })
-                } else resolve(true);
-            } else resolve(false);
-        })
-    }
+                        });
+                } else {resolve(true);}
+            } else {resolve(false);}
+        });
+    };
 
     const saveProfile = async () => {
         if (await checkTextInput()) {
@@ -130,9 +123,9 @@ const profile = (props) => {
             }
             setIsLoding(false);
         } else {
-            Alert.alert('No se puede comprobar el correo electrónico');
+            Alert.alert('Can\'t check email');
         }
-    }
+    };
 
     // Save User's profile (name, gender, email) to DB
     const saveProfileToDB = async () => {
@@ -145,12 +138,12 @@ const profile = (props) => {
                         name: name,
                         phone: phone,
                         email: email,
-                    }
+                    },
                 }, {
                     headers: {
                         authorization: pharmacy.token,
-                        pharmacy_id: pharmacy.pharmacy_id
-                    }
+                        pharmacy_id: pharmacy.pharmacy_id,
+                    },
                 })
                     .then((response) => {
                         if (response.status === 202) {
@@ -163,62 +156,57 @@ const profile = (props) => {
                     })
                     .catch(err => {
                         Alert.alert('Error al guardar el perfil');
-                        logger('ERR', 'FRONT-PHARMA', `Profile.js -> saveProfileToDB() : ${err}`, pharmacy, '');
                         console.log('Error at Profile.js -> saveProfileToDB() :', err);
                         resolve(false);
-                    })
+                    });
             } else {
-                logger('ERR', 'FRONT-PHARMA', `Profile.js -> saveProfileToDB() :`, pharmacy, 'No Pharmacy to save Profile');
                 console.log('Warning on Profile.js -> saveProfileToDB(): No Pharmacy to save Profile');
                 resolve(false);
             }
-        })
-    }
+        });
+    };
 
     // Send an email to the given address
     const handleEmail = () => {
-        let sendEmail: String;
+        let sendEmail: string;
         (Platform.OS === 'ios')
             ? sendEmail = `mailto:support@doctormax.es&subject=Consulta de ${pharmacy.pharmacy_desc} [${pharmacy.pharmacy_id}]`
-            : sendEmail = `mailto:support@doctormax.es?subject=Consulta de ${pharmacy.pharmacy_desc} [${pharmacy.pharmacy_id}]`
+            : sendEmail = `mailto:support@doctormax.es?subject=Consulta de ${pharmacy.pharmacy_desc} [${pharmacy.pharmacy_id}]`;
         Linking.canOpenURL(sendEmail)
             .then((supported) => {
                 if (supported) {
                     Linking.openURL(sendEmail);
                 } else {
-                    Alert.alert(`No se puede abrir el correo`);
+                    Alert.alert('Can\'t open mail');
                 }
             })
             .catch(err => {
-                Alert.alert(`Ha habido un error con el correo electrónico`);
+                Alert.alert('Error with email');
                 console.log('Error on Profile.js -> handleEmail(): ', err);
-                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleEmail() : ${err}`, pharmacy, `email: ${email}`);
-            })
+            });
     };
 
     // Opens a URL in the browser
     const handleURL = () => {
-        const url = 'https://www.doctormax.es/privacidad-y-condiciones-de-uso/'
+        const url = 'https://www.doctormax.es/privacidad-y-condiciones-de-uso/';
         Linking.canOpenURL(url)
             .then((supported) => {
                 if (supported) {
                     Linking.openURL(url);
                 } else {
-                    Alert.alert(`No se puede abrir el navegador`);
+                    Alert.alert('Can\'t open browser');
                 }
             })
             .catch(err => {
-                Alert.alert(`Ha habido un error con el navegador`);
+                Alert.alert('Error with browser');
                 console.log('Error on Profile.js -> handleURL(): ', err);
-                logger('ERR', 'FRONT-PHARMA', `Profile.js -> handleURL() : ${err}`, pharmacy, `url: ${url}`);
-            })
+            });
     };
 
     const renderEditProfile = () => (
-        <Modal visible={isModalOpen} animationType='slide'>
+        <Modal visible={isModalOpen} animationType="slide">
             <KeyboardAvoidingView
-                style={styles.keyboard}
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 enabled
                 keyboardVerticalOffset={10}
             >
@@ -255,7 +243,7 @@ const profile = (props) => {
                             <TextInput
                                 style={(Platform.OS === 'ios') ? styles.inputTextIOS : styles.inputTextAndroid}
                                 maxLength={20}
-                                onChangeText={value => { setPhone(value) }}
+                                onChangeText={value => { setPhone(value); }}
                                 value={phone}
                             />
                         </View>
@@ -264,9 +252,9 @@ const profile = (props) => {
                             <TextInput
                                 style={(Platform.OS === 'ios') ? styles.inputTextIOS : styles.inputTextAndroid}
                                 maxLength={254}
-                                autoCapitalize='none'
-                                keyboardType='email-address'
-                                onChangeText={value => { setEmail(value) }}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                onChangeText={value => { setEmail(value); }}
                                 value={email}
                             />
                         </View>
@@ -290,31 +278,30 @@ const profile = (props) => {
             </TouchableOpacity>
 
             <View style={styles.containerHeader}>
-                <Text style={[styles.text, styles.textHeader]}> Farmacia {pharmacy.pharmacy_desc} </Text>
+                <Text style={[styles.text, styles.textHeader]}> Pharmacy {pharmacy.pharmacy_desc} </Text>
                 <Text style={styles.text}>{pharmacy.pharmacy_code}</Text>
-                <Text></Text>
                 <QRCode
                     //value={user.eth_address}
                     value="jandddeeerrlskdjflkdsjflkdsj"
-                    color={"black"}
-                    backgroundColor={"white"}
+                    color={'black'}
+                    backgroundColor={'white'}
                     size={125}
                     logoMargin={2}
                     logoSize={30}
                     logoBorderRadius={10}
-                    logoBackgroundColor={"transparent"}
+                    logoBackgroundColor={'transparent'}
                 />
             </View>
 
-            <View style={[styles.containerItems, { marginLeft: 6 }]}>
+            <View style={[styles.containerItems/*, { marginLeft: 6 }*/]}>
                 <Ionicons name="ios-phone-portrait" size={30} style={styles.icon} />
-                <Text style={styles.text}>{pharmacy.phone_number}</Text>
+                <Text style={styles.text}>{pharmacy.phone}</Text>
             </View>
             <View style={styles.containerItems}>
                 <AntDesign name="user" size={25} style={styles.icon} />
                 <Text style={styles.text}>{pharmacy.owner_name}</Text>
             </View>
-            <View style={[styles.containerItems, { marginLeft: 3 }]}>
+            <View style={[styles.containerItems/*, { marginLeft: 3 }*/]}>
                 <Ionicons name="ios-at" size={25} style={styles.icon} />
                 <Text style={styles.text}>{pharmacy.email}</Text>
             </View>
@@ -370,7 +357,7 @@ const profile = (props) => {
                 {renderContactUs()}
             </ScrollView>
         </View>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
@@ -410,14 +397,14 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     containerInput: {
         marginTop: 30,
         marginLeft: 15,
         marginRight: 15,
         borderBottomWidth: 0.3,
-        borderColor: 'orange'
+        borderColor: 'orange',
     },
     containerChange: {
         marginTop: 40,
@@ -427,7 +414,7 @@ const styles = StyleSheet.create({
     containerContact: {
         padding: 10,
         borderTopWidth: 0.3,
-        borderColor: 'orange'
+        borderColor: 'orange',
     },
     buttonExit: {
         width: 150,
@@ -442,18 +429,18 @@ const styles = StyleSheet.create({
         color: Cons.COLORS.BLUE,
     },
     textBold: {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     margins: {
         marginLeft: 25,
         marginRight: 25,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     image: {
         flex: 1,
         width: 130,
         height: 130,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
     },
     profileImage: {
         width: 150,
@@ -494,8 +481,8 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
         marginBottom: 30,
         borderBottomWidth: 0.3,
-        borderColor: 'orange'
-    }
+        borderColor: 'orange',
+    },
 });
 
-export default profile;
+export default Profile;

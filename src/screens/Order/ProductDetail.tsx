@@ -5,44 +5,42 @@ import {
     Alert,
     Linking,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native';
-import globalStyles from '../../UI/Style';
 import Cons from '../../shared/Constants';
-import { useSelector, useDispatch } from 'react-redux';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { OrderStackParamList } from '../../navigation/StackNavigator';
 
+type Props = {
+    route: RouteProp<OrderStackParamList, 'ProductDetail'>,
+    navigation: StackNavigationProp<OrderStackParamList, 'ProductDetail'>
+};
 
-const productDetail = (props) => {
+const ProductDetail = (props: Props) => {
 
-    // const item_id = props.navigation.getParam('item_id');
-    // const product_id = props.navigation.getParam('product_id');
-    // const product_desc = props.navigation.getParam('product_desc');
-    // const dose_qty = props.navigation.getParam('dose_qty');
-    // const dose_form = props.navigation.getParam('dose_form');
-    // const prescription = props.navigation.getParam('prescription');
-    // const price = props.navigation.getParam('price');
-    // const leaflet_url = props.navigation.getParam('leaflet_url');
-    // const screen = props.navigation.getParam('screen');
+    const {
+        product_desc,
+        dose_qty,
+        dose_form,
+        prescription,
+        price,
+        leaflet_url } = props.route.params;
 
-    const { item_id, product_id, product_desc, dose_qty, dose_form, prescription,
-        price, leaflet_url, screen } = props.route.params;
-        
-    const dispatch = useDispatch();
-    const order = useSelector(state => state.order.items);
-
-    const handleURL = url => {
+    const handleURL = (url: string) => {
 
         Linking.canOpenURL(url)
             .then((supported) => {
                 if (supported) {
                     Linking.openURL(url);
                 } else {
-                    Alert.alert(`No se puede abrir el navegador`);
+                    Alert.alert('Can\'t open browser');
                 }
             })
-            .catch(err => console.warn('Error on MakeOrderDetail.js -> handleURL(): ', err))
+            .catch(err => {
+                console.warn('Error on MakeOrderDetail.js -> handleURL(): ', err);
+            });
     };
-
 
     return (
         <View style={styles.container}>
@@ -81,7 +79,6 @@ const productDetail = (props) => {
     );
 };
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -104,14 +101,14 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.3,
         borderColor: 'orange',
         paddingBottom: 10,
-        alignItems: 'center'
+        alignItems: 'center',
     },
     titleText: {
         fontSize: 20,
         fontWeight: 'bold',
     },
     bold: {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     availableText: {
         color: Cons.COLORS.BLUE,
@@ -134,4 +131,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default productDetail;
+export default ProductDetail;

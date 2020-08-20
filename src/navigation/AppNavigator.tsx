@@ -1,29 +1,28 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useTypedSelector } from '../store/reducers/reducer';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { setToken } from '../store/actions/pharmacy';
 import { LoginStackScreen } from './StackNavigator';
 import { AppTabScreens } from './BottomTabNavigator';
 
-const appNavigator = () => {
+const AppNavigator = () => {
 
     const dispatch = useDispatch();
-    const pharmacy = useSelector(state => state.pharmacy);
+    const pharmacy = useTypedSelector(state => state.pharmacy);
 
     useEffect(() => {
-        const getToken = async () => dispatch(setToken(await AsyncStorage.getItem('token')));
+        const getToken = async () =>
+            dispatch(setToken(await AsyncStorage.getItem('token')));
         getToken();
-    }, [])
+    }, [dispatch]);
 
     return (
         <NavigationContainer>
-            {(pharmacy.token == null)
-                ? <LoginStackScreen />
-                : <AppTabScreens />
-            }
+            {pharmacy.token == null ? <LoginStackScreen /> : <AppTabScreens />}
         </NavigationContainer>
-    )
+    );
 };
 
-export default appNavigator;
+export default AppNavigator;

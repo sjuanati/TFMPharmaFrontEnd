@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import {
     Text,
     View,
     ScrollView,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -16,7 +17,34 @@ import { httpUrl } from '../../../urlServer';
 import { setData } from '../../store/actions/pharmacy';
 import handleAxiosErrors from '../../shared/handleAxiosErrors';
 
-const home = (props) => {
+interface Pharmacy {
+    communication: string,
+    country: string,
+    creation_date: Date,
+    email: string,
+    facebook: string,
+    gps_latitude: number,
+    gps_longitude: number,
+    instagram: string,
+    locality: string,
+    municipality: string,
+    nif: string,
+    opening_hours: string,
+    owner_name: string,
+    password: string,
+    pharmacy_code: string,
+    pharmacy_desc: string,
+    pharmacy_id: number,
+    phone_number: string,
+    province: string,
+    status: number,
+    token: string,
+    update_date: Date,
+    web: string,
+    whatsapp: string,
+    zip_code: string
+}
+const Home = () => {
 
     useEffect(() => {
         fetchPharmacy();
@@ -29,23 +57,24 @@ const home = (props) => {
     const [openOrdersPreparation, setOpenOrdersPreparation] = useState('...');
 
     const fetchPharmacy = async () => {
-        const pharma = JSON.parse(await AsyncStorage.getItem('pharmacy'));
+        const pharma: Pharmacy = JSON.parse(await AsyncStorage.getItem('pharmacy') || '{}');
+        console.log('pharma->:', pharma);
         const token = await AsyncStorage.getItem('token');
         const pharmacy = {
             pharmacy_id: pharma.pharmacy_id,
-            token: token
-        }
+            token: token,
+        };
         await axios.get(`${httpUrl}/pharmacy/profile/get`, {
             params: { pharmacy_id: pharmacy.pharmacy_id },
-            headers: { authorization: pharmacy.token }
+            headers: { authorization: pharmacy.token },
         })
             .then(response => {
                 const res = response.data;
-                console.log('>> ', res);
+                //console.log('>> ', res);
                 if (res.length) {
                     dispatch(setData(
                         pharma.pharmacy_id,
-                        token,
+                        token || '',
                         res[0].status,
                         res[0].pharmacy_code,
                         res[0].pharmacy_desc,
@@ -63,43 +92,43 @@ const home = (props) => {
                 }
             })
             .catch(err => {
-                handleAxiosErrors(props, err);
+                handleAxiosErrors(err);
                 console.log('Error in Home.js -> fetchPharmacy():', err);
-            })
-    }
+            });
+    };
 
     const fetchKPIs = async () => {
-        
+
         setIsLoding(true);
 
-        const pharma = JSON.parse(await AsyncStorage.getItem('pharmacy'));
+        const pharma: Pharmacy = JSON.parse(await AsyncStorage.getItem('pharmacy') || '{}');
         const token = await AsyncStorage.getItem('token');
         const pharmacy = {
             pharmacy_id: pharma.pharmacy_id,
-            token: token
+            token: token,
         };
 
         //Get orders by status
         await axios.get(`${httpUrl}/pharmacy/orders/get`, {
             params: { pharmacy_id: pharmacy.pharmacy_id },
-            headers: { authorization: pharmacy.token }
+            headers: { authorization: pharmacy.token },
         })
             .then(response => {
                 const res = response.data;
                 setOpenOrdersPrice('0');
                 setOpenOrdersPreparation('0');
                 for (let i = 0; i < res.length; i++) {
-                    if (res[i].status === 1) setOpenOrdersPrice(res[i].total);
-                    if (res[i].status === 3) setOpenOrdersPreparation(res[i].total);
+                    if (res[i].status === 1) {setOpenOrdersPrice(res[i].total);}
+                    if (res[i].status === 3) {setOpenOrdersPreparation(res[i].total);}
                 }
             })
             .catch(err => {
-                handleAxiosErrors(props, err);
+                handleAxiosErrors(err);
                 console.log('Error in Home.js -> fetchKPIs():', err);
-            })
+            });
 
         setIsLoding(false);
-    }
+    };
 
     return (
         <View style={styles.container}>
@@ -125,12 +154,12 @@ const home = (props) => {
                     <View style={styles.containerIconButton}>
                         <Ionicons name="ios-refresh" size={20} color={Cons.COLORS.BLUE} />
                         <Text style={styles.textRefresh}> Refresh </Text>
-                    </View> 
+                    </View>
                 </TouchableOpacity>
             </ScrollView>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -150,7 +179,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     button: {
         marginTop: 30,
@@ -160,10 +189,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#578CA9',
     },
     color2: {
-        backgroundColor: '#AD5D5D'
+        backgroundColor: '#AD5D5D',
     },
     color3: {
-        backgroundColor: '#88B04B'
+        backgroundColor: '#88B04B',
     },
     header: {
         alignItems: 'flex-start',
@@ -190,13 +219,13 @@ const styles = StyleSheet.create({
         fontFamily: 'HelveticaNeue',
         color: Cons.COLORS.WHITE,
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     textRefresh: {
         fontFamily: 'HelveticaNeue',
         color: Cons.COLORS.BLUE,
         fontSize: 16,
-    }
+    },
 });
 
-export default home;
+export default Home;

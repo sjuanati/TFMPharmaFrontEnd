@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
+import {
     Text,
     View,
     Image,
-    StyleSheet
+    StyleSheet,
 } from 'react-native';
-import visaLogo from '../assets/images/global/visa.png';
+const visaLogo = require( '../assets/images/global/visa.png');
 
-const paymentVISA = () => (
+const PaymentVISA = () => (
     <View style={styles.paymentContainer}>
         <Image
             style={styles.logoContainer}
@@ -45,4 +45,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default paymentVISA;
+export default PaymentVISA;

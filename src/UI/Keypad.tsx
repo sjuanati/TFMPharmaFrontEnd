@@ -8,8 +8,12 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+interface Props {
+    onAddNumber(value: string): void,
+    onRemoveNumber(): void
+}
 
-const keypad = (props) => {
+const Keypad = (props: Props) => {
 
     return (
     <View style={styles.keyboardContainer}>
@@ -80,15 +84,15 @@ const keypad = (props) => {
                 style={styles.key}>
                 <Text style={styles.keyText}>
                     <Ionicons
-                        name='arrow-back-sharp'
+                        name="arrow-back-sharp"
                         size={25}
                     />
                 </Text>
             </TouchableOpacity>
         </View>
     </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     keyboardContainer: {
@@ -110,4 +114,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default keypad;
+export default Keypad;
