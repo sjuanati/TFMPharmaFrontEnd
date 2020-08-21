@@ -19,7 +19,7 @@ import { useDispatch } from 'react-redux';
 import { setToken } from '../../store/actions/pharmacy';
 import { httpUrl } from '../../../urlServer';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LoginStackParamList } from '../../navigation/StackNavigator';
@@ -35,7 +35,7 @@ type Props = {
 
 const SignIn = (props: Props) => {
     const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [pharmacy, setPharmacy] = useState({
         email: '',
         password: '',

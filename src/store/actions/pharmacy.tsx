@@ -8,7 +8,7 @@ export const setData = (
     pharmacy_desc: string,
     owner_name: string,
     nif: string,
-    phone_number: string,
+    phone: string,
     email: string,
     web: string,
     street: string,
@@ -24,7 +24,7 @@ export const setData = (
     pharmacy_desc: pharmacy_desc,
     owner_name: owner_name,
     nif: nif,
-    phone_number: phone_number,
+    phone: phone,
     email: email,
     web: web,
     street: street,
@@ -40,15 +40,15 @@ export const setToken = (token: string) => ({
 });
 
 export const updateData = (
-    pharmacy_id: string,
+    pharmacy_id: number,
     token: string,
     pharmacy_desc: string,
-    phone_number: string,
+    phone: string,
     email: string) => ({
     type: actionTypes.UPDATE_DATA,
     pharmacy_id: pharmacy_id,
     token: token,
     pharmacy_desc: pharmacy_desc,
-    phone_number: phone_number,
+    phone: phone,
     email: email,
 });

@@ -33,9 +33,7 @@ interface Order extends OrderBase {
 
 const GetOrderTrace = (props: Props) => {
 
-    //const order_id = props.navigation.getParam('order_id');
     const { order_id } = props.route.params;
-    //const user = useSelector(state => state.user);
     const pharmacy = useTypedSelector(state => state.pharmacy);
     const [order, setOrder] = useState([]);
 

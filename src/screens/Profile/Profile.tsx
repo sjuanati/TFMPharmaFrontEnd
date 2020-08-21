@@ -97,7 +97,7 @@ const Profile = () => {
                             }
                         })
                         .catch(err => {
-                            console.log('Error at Profile.js -> checkTextInput() :', err);
+                            console.log('Error in Profile.tsx -> checkTextInput() :', err);
                             resolve(false);
                         });
                 } else {resolve(true);}
@@ -116,8 +116,6 @@ const Profile = () => {
                 phone,
                 email,
             ));
-            // TODO: save photo to S3
-            // Update User's profile and address. In case of error, show message and do not close Modal
             if (await saveProfileToDB()) {
                 toggleIsModalOpen();
             }
@@ -147,7 +145,7 @@ const Profile = () => {
                 })
                     .then((response) => {
                         if (response.status === 202) {
-                            Alert.alert('Error al guardar perfil');
+                            Alert.alert('Error saving profile');
                             resolve(false);
                         } else {
                             resolve(true);
@@ -155,12 +153,12 @@ const Profile = () => {
 
                     })
                     .catch(err => {
-                        Alert.alert('Error al guardar el perfil');
-                        console.log('Error at Profile.js -> saveProfileToDB() :', err);
+                        Alert.alert('Error saving profile');
+                        console.log('Error in Profile.tsx -> saveProfileToDB() :', err);
                         resolve(false);
                     });
             } else {
-                console.log('Warning on Profile.js -> saveProfileToDB(): No Pharmacy to save Profile');
+                console.log('Warning in Profile.tsx -> saveProfileToDB(): No Pharmacy to save Profile');
                 resolve(false);
             }
         });
@@ -181,8 +179,8 @@ const Profile = () => {
                 }
             })
             .catch(err => {
-                Alert.alert('Error with email');
-                console.log('Error on Profile.js -> handleEmail(): ', err);
+                Alert.alert('Error sending email');
+                console.log('Error in Profile.tsx -> handleEmail(): ', err);
             });
     };
 
@@ -199,7 +197,7 @@ const Profile = () => {
             })
             .catch(err => {
                 Alert.alert('Error with browser');
-                console.log('Error on Profile.js -> handleURL(): ', err);
+                console.log('Error in Profile.tsx -> handleURL(): ', err);
             });
     };
 
@@ -216,12 +214,12 @@ const Profile = () => {
                             <TouchableOpacity
                                 // style={styles.button}
                                 onPress={closeProfile}>
-                                <Text style={styles.buttonText}> Cerrar </Text>
+                                <Text style={styles.buttonText}> Close </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 // style={styles.button}
                                 onPress={saveProfile}>
-                                <Text style={[styles.buttonText, styles.textBold]}> Guardar </Text>
+                                <Text style={[styles.buttonText, styles.textBold]}> Save </Text>
                             </TouchableOpacity>
                         </View>
 
@@ -230,7 +228,7 @@ const Profile = () => {
                         </View>
 
                         <View style={styles.containerInput}>
-                            <Text style={styles.text}>Nombre de farmacia </Text>
+                            <Text style={styles.text}>Pharmacy name </Text>
                             <TextInput
                                 style={(Platform.OS === 'ios') ? styles.inputTextIOS : styles.inputTextAndroid}
                                 maxLength={254}
@@ -239,7 +237,7 @@ const Profile = () => {
                             />
                         </View>
                         <View style={styles.containerInput}>
-                            <Text style={styles.text}>Teléfono</Text>
+                            <Text style={styles.text}>Phone</Text>
                             <TextInput
                                 style={(Platform.OS === 'ios') ? styles.inputTextIOS : styles.inputTextAndroid}
                                 maxLength={20}
@@ -248,7 +246,7 @@ const Profile = () => {
                             />
                         </View>
                         <View style={styles.containerInput}>
-                            <Text style={styles.text}>Correo electrónico </Text>
+                            <Text style={styles.text}>Email </Text>
                             <TextInput
                                 style={(Platform.OS === 'ios') ? styles.inputTextIOS : styles.inputTextAndroid}
                                 maxLength={254}
@@ -260,7 +258,7 @@ const Profile = () => {
                         </View>
                     </View>
                     <View style={styles.margins}>
-                        <Text style={[styles.text, styles.italic]}>Si deseas modificar otros datos de tu farmacia, por favor, ponte en contacto con nosotros. </Text>
+                        <Text style={[styles.text, styles.italic]}>Please contact us if you want to apply further updates in your pharmacy </Text>
                     </View>
 
                 </ScrollView>
@@ -274,7 +272,7 @@ const Profile = () => {
             <TouchableOpacity
                 style={styles.buttonEdit}
                 onPress={toggleIsModalOpen}>
-                <Text style={styles.buttonText}> Editar </Text>
+                <Text style={styles.buttonText}> Edit </Text>
             </TouchableOpacity>
 
             <View style={styles.containerHeader}>
@@ -318,7 +316,7 @@ const Profile = () => {
                         <Text style={styles.text}>{pharmacy.zip_code} {pharmacy.country}</Text>
                     </View>
                     :
-                    <Text style={styles.text}> Sin informar </Text>
+                    <Text style={styles.text}> Not filled </Text>
                 }
             </View>
         </View>
@@ -328,7 +326,7 @@ const Profile = () => {
     const renderContactUs = () => (
         <View>
             <View style={styles.containerContact}>
-                <Text style={[styles.text, styles.margins]}> Si tienes cualquier duda, por favor, contacta con nosotros ;) </Text>
+                <Text style={[styles.text, styles.margins]}> Please contact us if you have any doubt ;) </Text>
             </View>
             <View style={styles.containerButton}>
                 <TouchableOpacity

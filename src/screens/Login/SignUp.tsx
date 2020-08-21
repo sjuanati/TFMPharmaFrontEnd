@@ -25,7 +25,7 @@ import CheckBox from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../../store/actions/pharmacy';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LoginStackParamList } from '../../navigation/StackNavigator';
@@ -43,8 +43,8 @@ type Props = {
 
 const SignUp = (props: Props) => {
     const dispatch = useDispatch();
-    const [isLegalAccepted,setIsLegalAccepted] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [isLegalAccepted,setIsLegalAccepted] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [pharmacy, setPharmacy] = useState({
         pharmacy_desc: '',
         email: '',
@@ -79,8 +79,8 @@ const SignUp = (props: Props) => {
                 }
             })
             .catch(err => {
-                Alert.alert('Ha habido un error con el navegador');
-                console.log('Error on Pharmacy.js -> handleURL(): ', err);
+                Alert.alert('Error with browser');
+                console.log('Error in SignUp.tsx -> handleURL(): ', err);
             });
     };
 

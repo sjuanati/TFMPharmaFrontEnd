@@ -38,7 +38,7 @@ const ProductDetail = (props: Props) => {
                 }
             })
             .catch(err => {
-                console.warn('Error on MakeOrderDetail.js -> handleURL(): ', err);
+                console.warn('Error in ProductDetail.tsx -> handleURL(): ', err);
             });
     };
 

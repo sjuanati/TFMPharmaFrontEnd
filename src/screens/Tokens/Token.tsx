@@ -28,9 +28,9 @@ type Props = {
 const Token = (props: Props) => {
 
     const pharmacy = useTypedSelector(state => state.pharmacy);
-    const [balance, setBalance] = useState(-1);
-    const [amount, setAmount] = useState('0');
-    const [isLoading, setIsLoading] = useState(false);
+    const [balance, setBalance] = useState<number>(-1);
+    const [amount, setAmount] = useState<string>('0');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         fetchTokenBalance();
@@ -53,7 +53,7 @@ const Token = (props: Props) => {
             const amnt = Math.round(parseFloat(res.data) * 100) / 100;
             setBalance(amnt);
         }).catch(err => {
-            console.log('Error in Token.js -> fetchTokenBalance(): ', err);
+            console.log('Error in Token.tsx -> fetchTokenBalance(): ', err);
             setBalance(-2);
         });
     };
@@ -129,7 +129,7 @@ const Token = (props: Props) => {
                 { cancelable: false }
             );
         } catch (err) {
-            console.log('Error on Token.js -> handlePurchase(): ', err);
+            console.log('Error in Token.tsx -> handlePurchase(): ', err);
         }
     };
 

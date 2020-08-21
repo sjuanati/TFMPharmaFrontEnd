@@ -20,20 +20,20 @@ import axios from 'axios';
 import moment from 'moment';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { httpUrl } from '../../../urlServer';
-import { useTypedSelector, RootState } from '../../store/reducers/reducer';
+import { useTypedSelector } from '../../store/reducers/reducer';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OrderStackParamList } from '../../navigation/StackNavigator';
 import ActivityIndicator from '../../UI/ActivityIndicator';
+import { Order as OrderBase } from '../../shared/Interfaces';
 
 type Props = {
     route: RouteProp<OrderStackParamList, 'OrderDetail'>,
     navigation: StackNavigationProp<OrderStackParamList, 'OrderDetail'>
 };
 
-type OrderBase = RootState['order'];
 interface Order extends OrderBase {
     screen: string,
 }
@@ -41,7 +41,7 @@ interface Order extends OrderBase {
 const GetOrderDetail = (props: Props) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [order, setOrder] = useState<Order>();
-    const [orderTraceStatus, setOrderTraceStatus] = useState('PENDING');
+    const [orderTraceStatus, setOrderTraceStatus] = useState<string>('PENDING');
     const pharma = useTypedSelector(state => state.pharmacy);
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const GetOrderDetail = (props: Props) => {
             await fetchOrderTraceGlobal(order_id);
             setLoading(false);
         } catch (err) {
-            console.log(err);
+            console.log('Error in GetOrderDetail.tsx -> startFunctions(): ', err);
         }
     };
 
@@ -69,7 +69,7 @@ const GetOrderDetail = (props: Props) => {
         }).then(res => {
             setOrderTraceStatus(res.data);
         }).catch(err => {
-            console.log('Error in GetOrderDetail.js -> fetchOrderTraceGlobal() : ', err);
+            console.log('Error in GetOrderDetail.tsx -> fetchOrderTraceGlobal() : ', err);
         });
     };
 
@@ -87,7 +87,7 @@ const GetOrderDetail = (props: Props) => {
                 setOrder(ord[0]);
                 setLoading(false);
             } else {
-                showToast('Error while retrieveing orders','warning');
+                showToast('Error while retrieveing orders', 'warning');
             }
         }).catch(async err => {
             handleAxiosErrors(err);
@@ -119,7 +119,7 @@ const GetOrderDetail = (props: Props) => {
                             let ordr = res.data.order;
                             setOrder(ordr[0]);
                         } else {
-                            showToast('Error during Order status change','warning');
+                            showToast('Error during Order status change', 'warning');
                         }
                     }).catch(async err => {
                         handleAxiosErrors(err);
@@ -246,7 +246,7 @@ const GetOrderDetail = (props: Props) => {
         }
     };
 
-    const renderItem = ({ item, index }: {item: Order, index: number}) => {
+    const renderItem = ({ item, index }: { item: Order, index: number }) => {
         item.screen = 'GetOrderDetail';
         return (
             <ListItem
@@ -271,7 +271,7 @@ const GetOrderDetail = (props: Props) => {
             <FlatList
                 data={order}
                 renderItem={renderItem}
-                keyExtractor={(item: Order) => item.order_item.toString()}/>
+                keyExtractor={(item: Order) => item.order_item.toString()} />
         );
     };
 

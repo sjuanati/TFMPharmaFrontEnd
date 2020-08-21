@@ -15,35 +15,9 @@ import Cons from '../../shared/Constants';
 import ActivityIndicator from '../../UI/ActivityIndicator';
 import { httpUrl } from '../../../urlServer';
 import { setData } from '../../store/actions/pharmacy';
-import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import handleAxiosErrors from '../../shared/HandleAxiosErrors';
+import { Pharmacy } from '../../shared/Interfaces';
 
-interface Pharmacy {
-    communication: string,
-    country: string,
-    creation_date: Date,
-    email: string,
-    facebook: string,
-    gps_latitude: number,
-    gps_longitude: number,
-    instagram: string,
-    locality: string,
-    municipality: string,
-    nif: string,
-    opening_hours: string,
-    owner_name: string,
-    password: string,
-    pharmacy_code: string,
-    pharmacy_desc: string,
-    pharmacy_id: number,
-    phone_number: string,
-    province: string,
-    status: number,
-    token: string,
-    update_date: Date,
-    web: string,
-    whatsapp: string,
-    zip_code: string
-}
 const Home = () => {
 
     useEffect(() => {
@@ -52,9 +26,9 @@ const Home = () => {
     }, []);
 
     const dispatch = useDispatch();
-    const [isLoading, setIsLoding] = useState(false);
-    const [openOrdersPrice, setOpenOrdersPrice] = useState('...');
-    const [openOrdersPreparation, setOpenOrdersPreparation] = useState('...');
+    const [isLoading, setIsLoding] = useState<boolean>(false);
+    const [openOrdersPrice, setOpenOrdersPrice] = useState<string>('...');
+    const [openOrdersPreparation, setOpenOrdersPreparation] = useState<string>('...');
 
     const fetchPharmacy = async () => {
         const pharma: Pharmacy = JSON.parse(await AsyncStorage.getItem('pharmacy') || '{}');
@@ -93,7 +67,7 @@ const Home = () => {
             })
             .catch(err => {
                 handleAxiosErrors(err);
-                console.log('Error in Home.js -> fetchPharmacy():', err);
+                console.log('Error in Home.tsx -> fetchPharmacy():', err);
             });
     };
 
@@ -118,13 +92,13 @@ const Home = () => {
                 setOpenOrdersPrice('0');
                 setOpenOrdersPreparation('0');
                 for (let i = 0; i < res.length; i++) {
-                    if (res[i].status === 1) {setOpenOrdersPrice(res[i].total);}
-                    if (res[i].status === 3) {setOpenOrdersPreparation(res[i].total);}
+                    if (res[i].status === 1) { setOpenOrdersPrice(res[i].total); }
+                    if (res[i].status === 3) { setOpenOrdersPreparation(res[i].total); }
                 }
             })
             .catch(err => {
                 handleAxiosErrors(err);
-                console.log('Error in Home.js -> fetchKPIs():', err);
+                console.log('Error in Home.tsx -> fetchKPIs():', err);
             });
 
         setIsLoding(false);
@@ -150,7 +124,7 @@ const Home = () => {
                 <TouchableOpacity
                     onPress={() => fetchKPIs()}
                     style={styles.button}
-                    >
+                >
                     <View style={styles.containerIconButton}>
                         <Ionicons name="ios-refresh" size={20} color={Cons.COLORS.BLUE} />
                         <Text style={styles.textRefresh}> Refresh </Text>

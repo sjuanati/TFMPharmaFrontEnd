@@ -27,10 +27,11 @@ import { httpUrl } from '../../../urlServer';
 import { useDispatch } from 'react-redux';
 import { useTypedSelector, RootState } from '../../store/reducers/reducer';
 import { setModifiedOrder, setOrdersPage } from '../../store/actions/order';
-import handleAxiosErrors from '../../shared/handleAxiosErrors';
+import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OrderStackParamList } from '../../navigation/StackNavigator';
+import { Filter } from '../../shared/Interfaces';
 
 type Props = {
     route: RouteProp<OrderStackParamList, 'Orders'>,
@@ -41,12 +42,7 @@ type OrderBase = RootState['order'];
 interface Order extends OrderBase {
     header: boolean
 }
-interface Filters {
-    grey: boolean,
-    red: boolean,
-    yellow: boolean,
-    green: boolean
-}
+
 
 const GetOrders = (props: Props) => {
 
@@ -54,14 +50,12 @@ const GetOrders = (props: Props) => {
     const modifiedOrder = useTypedSelector(state => state.order.modifiedOrder);
     const ordersPage = useTypedSelector(state => state.order.ordersPage);
     const pharmacy = useTypedSelector(state => state.pharmacy);
-    const [loading, setLoading] = useState(true);
-    //const [orders, setOrders] = useState([]);
-    const [orders, setOrders] = useState<Order[]>();
-    //const [originalOrders, setOriginalOrders] = useState([]);
-    const [originalOrders, setOriginalOrders] = useState<Order[]>();
-    const [isActive, setIsActive] = useState(true);
-    const [searchText, setSearchText] = useState('');
-    const [filters, setFilters] = useState({
+    const [loading, setLoading] = useState<boolean>(true);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [originalOrders, setOriginalOrders] = useState<Order[]>([]);
+    const [isActive, setIsActive] = useState<boolean>(true);
+    const [searchText, setSearchText] = useState<string>('');
+    const [filters, setFilters] = useState<Filter>({
         grey: true,
         red: true,
         yellow: true,
@@ -95,7 +89,7 @@ const GetOrders = (props: Props) => {
     }, [modifiedOrder]);
 
     useEffect(() => {
-        let interval : ReturnType<typeof setInterval>;
+        let interval: ReturnType<typeof setInterval>;
         if (!isActive) {
             clearInterval(interval);
         } else {
@@ -105,7 +99,6 @@ const GetOrders = (props: Props) => {
                         console.warn(JSON.stringify(error));
                     });
             }, 60000);
-            console.log('interval:', interval);
         }
         return () => clearInterval(interval);
     }, [isActive]);
@@ -118,7 +111,7 @@ const GetOrders = (props: Props) => {
         }
     };
 
-    const findOrder = (text: string, arrayOrders: Order[], modFilters: Filters) => {
+    const findOrder = (text: string, arrayOrders: Order[], modFilters: Filter) => {
         return new Promise<Order[]>(async (resolve) => {
             if (text !== '') {
                 let ordersToFilter = await applyFilter(modFilters, arrayOrders);
@@ -138,7 +131,7 @@ const GetOrders = (props: Props) => {
         });
     };
 
-    const applyFilter = async (filter: Filters, arrayOrders: Order[]) => {
+    const applyFilter = async (filter: Filter, arrayOrders: Order[]) => {
         return new Promise<Order[]>((resolve) => {
 
             let finalArray: Order[] = [];
@@ -199,7 +192,7 @@ const GetOrders = (props: Props) => {
         }
     };
 
-    const renderItem = ({item}: {item: Order}) => {
+    const renderItem = ({ item }: { item: Order }) => {
         return (
             <View>
                 {(item.header) ?
@@ -207,18 +200,18 @@ const GetOrders = (props: Props) => {
                         itemDivider
                         //style={{ marginLeft: 0 }}
                         id={item.order_id.toString()}>
-                        <Left style={{ flex: 0.6 }}>
+                        <Left style={styles.flex06}>
                             <Text>Order</Text>
                         </Left>
-                        <Body style={{ flex: 0.4 }}>
+                        <Body style={styles.flex04}>
                             <Text>Status</Text>
                         </Body>
                     </ListItem>
                     :
                     <ListItem
-                        style={{ marginLeft: 0 }}
+                        //style={{ marginLeft: 0 }}
                         id={item.order_id.toString()}>
-                        <Body style={{ flex: 0.6, paddingLeft: 5 }}>
+                        <Body style={[styles.flex06, styles.paddingLeft5]}>
                             <TouchableOpacity onPress={() => openOrder(item)}>
                                 <Text>#{item.order_id_app} - {item.name}</Text>
                                 {(item.total_price)
@@ -229,7 +222,7 @@ const GetOrders = (props: Props) => {
                                 }
                             </TouchableOpacity>
                         </Body>
-                        <Body style={{ flex: 0.4 }}>
+                        <Body style={styles.flex04}>
                             <TouchableOpacity onPress={() => openOrder(item)}>
                                 <StatusOrder status={item.status} />
                             </TouchableOpacity>
@@ -243,7 +236,7 @@ const GetOrders = (props: Props) => {
     const RenderDate = ({ date }: { date: Date }) => {
         return (
             <Text note>
-                {('0' + date.getHours()).slice(-2)}:{('0' + date.getMinutes()).slice(-2)} 
+                {('0' + date.getHours()).slice(-2)}:{('0' + date.getMinutes()).slice(-2)}
                 {('0' + date.getDate()).slice(-2)}/{('0' + (date.getMonth() + 1).toString()).slice(-2)}/{(date.getFullYear())}
             </Text>
         );
@@ -347,7 +340,7 @@ const GetOrders = (props: Props) => {
                                 setOrders(ord);
                             }
                         }}>
-                            <Badge style={{ backgroundColor: 'grey', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, marginHorizontal: 7, marginTop: 15 }}>
+                            <Badge style={styles.filter}>
                                 <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
@@ -358,7 +351,7 @@ const GetOrders = (props: Props) => {
                             const ord = await findOrder(searchText, originalOrders, modFilters);
                             setOrders(ord);
                         }}>
-                            <Badge style={{ backgroundColor: 'grey', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, marginHorizontal: 7, marginTop: 15, opacity: 0.5 }}>
+                            <Badge style={[styles.filter, styles.opacity]}>
                                 <Icon name="ellipsis1" type="AntDesign" style={styles.badge} />
                             </Badge>
                         </TouchableOpacity>
@@ -580,6 +573,27 @@ const styles = StyleSheet.create({
     badge: {
         fontSize: 14,
         color: '#fff',
+    },
+    filter: {
+        backgroundColor: 'grey',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 25,
+        height: 25,
+        marginHorizontal: 7,
+        marginTop: 15,
+    },
+    opacity: {
+        opacity: 0.5,
+    },
+    flex04: {
+        flex: 0.4,
+    },
+    flex06: {
+        flex: 0.6,
+    },
+    paddingLeft5: {
+        paddingLeft: 5,
     },
 });
 
