@@ -40,7 +40,7 @@ interface Order extends OrderBase {
 
 const GetOrderDetail = (props: Props) => {
     const [loading, setLoading] = useState<boolean>(true);
-    const [order, setOrder] = useState<Order>();
+    const [order, setOrder] = useState<Order[]>([]);
     const [orderTraceStatus, setOrderTraceStatus] = useState<string>('PENDING');
     const pharma = useTypedSelector(state => state.pharmacy);
 
@@ -83,8 +83,8 @@ const GetOrderDetail = (props: Props) => {
         }).then(async res => {
             if (res.status === 200 || res.status === 304) {
                 let ord = res.data;
-                //setOrder(ordr => [...ordr, ...ord]);
-                setOrder(ord[0]);
+                setOrder(ordr => [...ordr, ...ord]);
+                //setOrder(ord[0]);
                 setLoading(false);
             } else {
                 showToast('Error while retrieveing orders', 'warning');
@@ -108,16 +108,16 @@ const GetOrderDetail = (props: Props) => {
                     setLoading(true);
                     axios.post(`${httpUrl}/order/changeOrderStatus`, {
                         status: status,
-                        order_id: order!.order_id,
-                        pharmacy_id: order!.pharmacy_id,
-                        user_id: order!.user_id,
+                        order_id: order[0].order_id,
+                        pharmacy_id: order[0].pharmacy_id,
+                        user_id: order[0].user_id,
                         eth_address: pharma.eth_address,
                     }, {
                         headers: { authorization: pharma.token },
                     }).then(async res => {
                         if (res.status === 200 && res.data.order) {
                             let ordr = res.data.order;
-                            setOrder(ordr[0]);
+                            setOrder(ordr);
                         } else {
                             showToast('Error during Order status change', 'warning');
                         }
@@ -153,7 +153,7 @@ const GetOrderDetail = (props: Props) => {
     };
 
     const RenderActionButtons = () => {
-        if (order!.status === 1) {
+        if (order[0].status === 1) {
             return (
                 <View style={styles.container}>
                     <Grid>
@@ -179,7 +179,7 @@ const GetOrderDetail = (props: Props) => {
                         </Col>
                     </Grid>
                 </View>);
-        } else if (order!.status === 2) {
+        } else if (order[0].status === 2) {
             return (
                 <View>
                     <Grid>
@@ -215,7 +215,7 @@ const GetOrderDetail = (props: Props) => {
                         </Col>
                     </Grid>
                 </View>);
-        } else if (order!.status === 3 || order!.status === 4) {
+        } else if (order[0].status === 3 || order[0].status === 4) {
             return (
                 <View>
                     <Grid>
@@ -322,23 +322,23 @@ const GetOrderDetail = (props: Props) => {
             <View style={styles.sectionContainer}>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> Reference: </Text>
-                    <Text style={styles.rowValue}> #{order!.order_id_app} </Text>
+                    <Text style={styles.rowValue}> #{order[0].order_id_app} </Text>
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> Date: </Text>
-                    <Text style={styles.rowValue}> {moment(order!.creation_date).format('Do MMMM YY - HH:mm:ss')} </Text>
+                    <Text style={styles.rowValue}> {moment(order[0].creation_date).format('Do MMMM YY - HH:mm:ss')} </Text>
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> User: </Text>
-                    <Text style={styles.rowValue}> {order!.name} </Text>
+                    <Text style={styles.rowValue}> {order[0].name} </Text>
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> Status: </Text>
-                    <Text style={styles.rowValue}> {StatusOrder(order!.status)} </Text>
+                    <Text style={styles.rowValue}> {StatusOrder(order[0].status)} </Text>
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> Price: </Text>
-                    <Text style={styles.rowValue}> {order!.total_price} € </Text>
+                    <Text style={styles.rowValue}> {order[0].total_price} € </Text>
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={styles.rowHeader}> Trace: </Text>
@@ -346,7 +346,7 @@ const GetOrderDetail = (props: Props) => {
 
                     <TouchableOpacity
                         style={styles.buttonDetails}
-                        onPress={() => openTrace(order!.order_id)}
+                        onPress={() => openTrace(order[0].order_id)}
                     >
                         <Text style={[styles.rowValue, styles.buttonText]}> Details </Text>
                     </TouchableOpacity>
@@ -360,7 +360,7 @@ const GetOrderDetail = (props: Props) => {
 
     return (
         <Container>
-            {(/*loading ||*/ !order)
+            {(loading /*!order*/)
                 ? <Spinner color="#F4B13E" />
                 : RenderPage()
             }

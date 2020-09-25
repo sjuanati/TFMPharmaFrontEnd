@@ -132,7 +132,7 @@ const SignUp = (props: Props) => {
                 />
                 <Text style={styles.textLogo}>
                     Versión Farmacia
-        </Text>
+                </Text>
                 {(loading) ?
                     <Content style={styles.content}>
                         <Spinner color="#F4B13E" />
