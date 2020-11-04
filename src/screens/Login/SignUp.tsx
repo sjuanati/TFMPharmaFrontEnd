@@ -25,7 +25,7 @@ import CheckBox from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../../store/actions/pharmacy';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/HandleAxiosErrors';
+//import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LoginStackParamList } from '../../navigation/StackNavigator';
@@ -109,7 +109,8 @@ const SignUp = (props: Props) => {
                     }
                 }).catch((err) => {
                     if (err.response && err.response.status === 400) {
-                        handleAxiosErrors(err);
+                        //handleAxiosErrors(err);
+                        console.log(err);
                         setLoading(false);
                     }
                 });

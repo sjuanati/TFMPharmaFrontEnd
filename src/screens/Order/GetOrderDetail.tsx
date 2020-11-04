@@ -22,7 +22,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { httpUrl } from '../../../urlServer';
 import { useTypedSelector } from '../../store/reducers/reducer';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/HandleAxiosErrors';
+//import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OrderStackParamList } from '../../navigation/StackNavigator';
@@ -90,7 +90,8 @@ const GetOrderDetail = (props: Props) => {
                 showToast('Error while retrieveing orders', 'warning');
             }
         }).catch(async err => {
-            handleAxiosErrors(err);
+            //handleAxiosErrors(err);
+            console.log(err);
             setLoading(false);
         });
     };
@@ -122,7 +123,8 @@ const GetOrderDetail = (props: Props) => {
                             showToast('Error during Order status change', 'warning');
                         }
                     }).catch(async err => {
-                        handleAxiosErrors(err);
+                        //handleAxiosErrors(err);
+                        console.log(err);
                     }).finally(() => {
                         setLoading(false);
                     });

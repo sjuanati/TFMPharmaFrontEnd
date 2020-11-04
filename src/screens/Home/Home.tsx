@@ -32,7 +32,6 @@ const Home = () => {
 
     const fetchPharmacy = async () => {
         const pharma: Pharmacy = JSON.parse(await AsyncStorage.getItem('pharmacy') || '{}');
-        console.log('pharma->:', pharma);
         const token = await AsyncStorage.getItem('token');
         const pharmacy = {
             pharmacy_id: pharma.pharmacy_id,
@@ -44,7 +43,6 @@ const Home = () => {
         })
             .then(response => {
                 const res = response.data;
-                //console.log('>> ', res);
                 if (res.length) {
                     dispatch(setData(
                         pharma.pharmacy_id,
@@ -66,7 +64,7 @@ const Home = () => {
                 }
             })
             .catch(err => {
-                handleAxiosErrors(err);
+                //handleAxiosErrors(err);
                 console.log('Error in Home.tsx -> fetchPharmacy():', err);
             });
     };
@@ -97,7 +95,7 @@ const Home = () => {
                 }
             })
             .catch(err => {
-                handleAxiosErrors(err);
+                //handleAxiosErrors(err);
                 console.log('Error in Home.tsx -> fetchKPIs():', err);
             });
 

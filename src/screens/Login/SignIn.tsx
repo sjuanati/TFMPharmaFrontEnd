@@ -19,7 +19,7 @@ import { useDispatch } from 'react-redux';
 import { setToken } from '../../store/actions/pharmacy';
 import { httpUrl } from '../../../urlServer';
 import showToast from '../../shared/Toast';
-import handleAxiosErrors from '../../shared/HandleAxiosErrors';
+//import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LoginStackParamList } from '../../navigation/StackNavigator';
@@ -68,7 +68,8 @@ const SignIn = (props: Props) => {
                     setLoading(false);
                 }
             }).catch((err) => {
-                handleAxiosErrors(err);
+                //handleAxiosErrors(err);
+                console.log(err);
                 setLoading(false);
             });
         } else {

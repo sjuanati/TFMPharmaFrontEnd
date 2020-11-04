@@ -1,4 +1,4 @@
-import { Alert, ErrorHandlerCallback } from 'react-native';
+import { Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../store/actions/pharmacy';
 import AsyncStorage from '@react-native-community/async-storage';

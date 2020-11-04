@@ -27,7 +27,7 @@ import { httpUrl } from '../../../urlServer';
 import { useDispatch } from 'react-redux';
 import { useTypedSelector, RootState } from '../../store/reducers/reducer';
 import { setModifiedOrder, setOrdersPage } from '../../store/actions/order';
-import handleAxiosErrors from '../../shared/HandleAxiosErrors';
+//import handleAxiosErrors from '../../shared/HandleAxiosErrors';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OrderStackParamList } from '../../navigation/StackNavigator';
@@ -175,7 +175,8 @@ const GetOrders = (props: Props) => {
                     showToast('There was an error', 'warning');
                 }
             }).catch(async err => {
-                handleAxiosErrors(err);
+                //handleAxiosErrors(err);
+                console.log(err);
                 setLoading(false);
             });
         });
