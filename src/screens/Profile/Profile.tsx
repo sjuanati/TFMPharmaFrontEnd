@@ -39,7 +39,7 @@ const Profile = () => {
 
     const logOut = () => {
         Alert.alert(
-            '¿Seguro que quieres salir?', 'Volverás a la pantalla de inicio',
+            '¿Do you want to sign out?', '',
             [
                 { text: 'Cancel', onPress: () => { }, style: 'cancel' },
                 {
@@ -339,10 +339,10 @@ const Profile = () => {
                 </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={handleURL}>
-                <Text style={[styles.buttonText, styles.containerContact]}> Política de Privacidad </Text>
+                <Text style={[styles.buttonText, styles.containerContact]}> Privacy Policy </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={logOut}>
-                <Text style={[styles.buttonText, styles.containerContact, styles.ender]}> Salir </Text>
+                <Text style={[styles.buttonText, styles.containerContact, styles.ender]}> Sign Out </Text>
             </TouchableOpacity>
         </View>
     );

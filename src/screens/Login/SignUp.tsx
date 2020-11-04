@@ -85,7 +85,6 @@ const SignUp = (props: Props) => {
     };
 
     const register = () => {
-        //console.log('credentials:', pharmacy.email, pharmacy.password, pharmacy.name, pharmacy.phone);
         if (pharmacy.email && pharmacy.password) {
             if (pharmacy.password === pharmacy.repeatPassword) {
 
